@@ -5,4 +5,7 @@ public class IM_CLAF {
     public String Product_Detection() {
         return null;
     }
+
+    public IM_CLAF() {
+    }
 }

@@ -4,6 +4,18 @@ public class ModeChangeEX {
 
     public int Current_Mode;
 
+    public ModeChangeEX(int current_Mode) {
+        Current_Mode = current_Mode;
+    }
+
+    public int getCurrent_Mode() {
+        return Current_Mode;
+    }
+
+    public void setCurrent_Mode(int current_Mode) {
+        Current_Mode = current_Mode;
+    }
+
     public void ExecuteExiprationDetection() { // 유통기한 확인 알고리즘 실행 요청
 
     }

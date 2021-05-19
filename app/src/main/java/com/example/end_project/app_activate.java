@@ -9,6 +9,18 @@ public class app_activate extends UserGesture{
 
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public app_activate(int status) {
+        this.status = status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     public void ExecuteASR() {
 
     }

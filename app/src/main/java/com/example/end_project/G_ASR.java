@@ -6,6 +6,9 @@ public class G_ASR {
 
     }
 
+    public G_ASR() {
+    }
+
     public String ConvertVoiceIntoText() {
         return null;
     }

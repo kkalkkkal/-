@@ -21,20 +21,26 @@ public class GetAuth_CAM extends MainActivity {
     }
 
 
-    public void Request_Camera_Permission() { // 카메라 권한 요청
+    public void Request_Camera_Permission(Activity activity) { // 카메라 권한 요청
 
-        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA); // 권한이 이미 있는지 확인
+        int permission = ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA); // 권한이 이미 있는지 확인
 
         if(permission == PackageManager.PERMISSION_DENIED){
             // 권한 없어서 요청
+            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA)) {
+                Toast.makeText(activity, "앱 실행을 위해서는 권한을 설정해야 합니다", Toast.LENGTH_LONG).show();
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA},REQ_CAMERA_PERMISSION);
+
             }else { // 권한 있음
-            startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQ_IMAGE_CAPTURE);
+                startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQ_IMAGE_CAPTURE);
+            }
         }
-        
-        Activity activity = new MainActivity();
-        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA},REQ_CAMERA_PERMISSION);
 
     }
+
+
+
+
 
     @Override // 요청에 대한 응답
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

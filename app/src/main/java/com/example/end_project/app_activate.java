@@ -9,6 +9,10 @@ public class app_activate extends UserGesture{
         this.status = status;
     }
 
+    public app_activate(int status) {
+        super();
+    }
+
     public void Default_Mode() {
 
     }

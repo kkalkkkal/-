@@ -13,6 +13,10 @@ public class UserGesture extends AppCompatActivity {
         GestureName = gestureName;
     }
 
+    public UserGesture() {
+
+    }
+
     public String getGestureName() {
         return GestureName;
     }

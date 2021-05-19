@@ -4,6 +4,10 @@ public class app_activate extends UserGesture{
 
     public int status;
 
+    public app_activate(String gestureName, int status) { // 생성자
+        super(gestureName);
+        this.status = status;
+    }
 
     public void Default_Mode() {
 
@@ -13,9 +17,6 @@ public class app_activate extends UserGesture{
         return status;
     }
 
-    public app_activate(int status) {
-        this.status = status;
-    }
 
     public void setStatus(int status) {
         this.status = status;

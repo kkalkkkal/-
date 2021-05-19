@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.end_project">
-    <uses-permission android:name="android.permission.CAMERA" android:maxSdkVersion="29" /> <!-- 카메라 권한 요청 선언 -->
-    <uses-permission android:name="android.permission.CALL_PHONE" android:maxSdkVersion="29" /> <!-- 전화 권한 요청 선언 -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO" android:maxSdkVersion="29" /> <!-- 녹음(마이크) 권한 요청 선언 -->
+    <uses-permission android:name="android.permission.CAMERA" android:maxSdkVersion="30" /> <!-- 카메라 권한 요청 선언 -->
+    <uses-permission android:name="android.permission.CALL_PHONE" android:maxSdkVersion="30" /> <!-- 전화 권한 요청 선언 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" android:maxSdkVersion="30" /> <!-- 녹음(마이크) 권한 요청 선언 -->
     <uses-feature android:name="android.hardware.camera"
         android:required="false" /> <!-- 하드웨어를 선택사항으로 선언 : 이제 카메라가 없는 디바이스에서도 테스트 가능 -->
     <application

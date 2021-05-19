@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
                 PackageManager.FEATURE_CAMERA_FRONT)) {
             // Continue with the part of your app's workflow that requires a
             // front-facing camera. 카메라 있는 경우
+            getAuth_cam.Request_Camera_Permission(this); // 카메라 권한 요청
         } else {
             // Gracefully degrade your app experience. 카메라 없는 경우
         }
@@ -24,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getAuth_cam.Request_Camera_Permission(); // 카메라 권한 요청
+
 
     }
 

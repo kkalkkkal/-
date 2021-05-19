@@ -6,6 +6,9 @@ public class GetAuth_PHONE {
 
     }
 
+    public GetAuth_PHONE() {
+    }
+
     public void Activate_Phone() {
 
     }

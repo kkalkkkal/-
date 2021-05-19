@@ -4,6 +4,19 @@ public class UserGesture {
 
     public String GestureName;
 
+
+    public UserGesture(String gestureName) {
+        GestureName = gestureName;
+    }
+
+    public String getGestureName() {
+        return GestureName;
+    }
+
+    public void setGestureName(String gestureName) {
+        GestureName = gestureName;
+    }
+
     public String Gesture(){
 
         return null;

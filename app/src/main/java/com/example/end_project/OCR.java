@@ -1,6 +1,9 @@
 package com.example.end_project;
 
 public class OCR {
+
+    public OCR() { // 생성자
+    }
     
     public void ExecuteOCR() {
 

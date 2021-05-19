@@ -7,5 +7,7 @@ public class ResetCAM extends app_activate {
 
     }
 
-
+    public ResetCAM(int status) {
+        super(status);
+    }
 }

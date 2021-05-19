@@ -1,6 +1,10 @@
 package com.example.end_project;
 
-public class UserGesture {
+import android.app.AppComponentFactory;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class UserGesture extends AppCompatActivity {
 
     public String GestureName;
 

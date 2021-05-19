@@ -8,9 +8,14 @@ import android.os.Bundle;
 public class MainActivity extends AppCompatActivity {
 
     GetAuth_CAM getAuth_cam = new GetAuth_CAM();
-    
+    GetAuth_MIC getAuth_mic = new GetAuth_MIC();
+    GetAuth_PHONE getAuth_phone = new GetAuth_PHONE();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        getAuth_phone.Request_Phone_Permission(this);
+        getAuth_mic.Request_MIC_Permission(this);
 
         // Check whether your app is running on a device that has a front-facing camera.
         if (getApplicationContext().getPackageManager().hasSystemFeature(

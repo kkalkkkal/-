@@ -1,12 +1,63 @@
 package com.example.end_project;
 
-public class GetAuth_CAM {
-    public GetAuth_CAM() {
+import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.provider.MediaStore;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+public class GetAuth_CAM extends MainActivity {
+
+    private static final int REQ_IMAGE_CAPTURE =  1002;
+    private static final int REQ_CAMERA_PERMISSION =  1001; // 요청 실행 후 전달 받을 임의 코드
+
+    public GetAuth_CAM() { // 생성자
     }
 
 
-    public void Request_Camera_Permission() {
+    public void Request_Camera_Permission() { // 카메라 권한 요청
 
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA); // 권한이 이미 있는지 확인
+
+        if(permission == PackageManager.PERMISSION_DENIED){
+            // 권한 없어서 요청
+            }else { // 권한 있음
+            startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQ_IMAGE_CAPTURE);
+        }
+        
+        Activity activity = new MainActivity();
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA},REQ_CAMERA_PERMISSION);
+
+    }
+
+    @Override // 요청에 대한 응답
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        switch(requestCode) {
+            case REQ_CAMERA_PERMISSION:
+
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // 권한 허가된 경우 처리
+                    Toast.makeText(this, "앱 실행을 위한 권한이 설정 되었습니다", Toast.LENGTH_LONG).show();
+
+
+                } else {
+
+                    // 권한 거절된 경우 처리
+                    Toast.makeText(this, "앱 실행을 위한 권한이 취소 되었습니다", Toast.LENGTH_LONG).show();
+
+                }
+
+                break;
+
+        }
 
     }
 

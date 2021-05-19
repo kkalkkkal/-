@@ -1,6 +1,8 @@
 package com.example.end_project;
 
-public class GetAuth_PHONE {
+import androidx.appcompat.app.AppCompatActivity;
+
+public class GetAuth_PHONE extends AppCompatActivity {
 
     public void Request_Phone_Permission() { // 전화 권한 요청
 

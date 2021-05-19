@@ -1,6 +1,8 @@
 package com.example.end_project;
 
-public class GetAuth_MIC {
+import androidx.appcompat.app.AppCompatActivity;
+
+public class GetAuth_MIC extends AppCompatActivity {
 
     public GetAuth_MIC() {
     }

@@ -4,9 +4,14 @@
     <uses-permission android:name="android.permission.CAMERA" android:maxSdkVersion="30" /> <!-- 카메라 권한 요청 선언 -->
     <uses-permission android:name="android.permission.CALL_PHONE" android:maxSdkVersion="30" /> <!-- 전화 권한 요청 선언 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" android:maxSdkVersion="30" /> <!-- 녹음(마이크) 권한 요청 선언 -->
-    <uses-feature android:name="android.hardware.camera"
-        android:required="false" /> <!-- 하드웨어를 선택사항으로 선언 : 이제 카메라가 없는 디바이스에서도 테스트 가능 -->
-    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/> <!-- 쓰기 권한 가져오기 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/> <!-- 읽기 권한 가져오기 -->
+    <!--<uses-feature android:name="android.hardware.camera"
+        android:required="false" /> <!- 하드웨어를 선택사항으로 선언 : 이제 카메라가 없는 디바이스에서도 테스트 가능 -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!--인터넷 권한 가져오기-->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -14,13 +19,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.End_Project">
-        <activity android:name=".MainActivity">
-            <intent-filter> <!--이 필터가 있는 부분이 가장 먼저 실행됨-->
-                <action android:name="android.intent.action.MAIN" />
 
+        <activity android:name=".MainActivity" />
+        <activity android:name=".IntroActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter><!--이 필터가 있는 부분이 가장 먼저 실행됨-->
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

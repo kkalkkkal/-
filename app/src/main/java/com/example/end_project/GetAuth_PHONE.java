@@ -7,13 +7,14 @@ import android.content.pm.PackageManager;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class GetAuth_PHONE extends AppCompatActivity {
 
-    private static final int REQ_PHONE_PERMISSION =  2003; // 요청 실행 후 전달 받을 임의 코드
+    private static final int REQ_PHONE_PERMISSION =  2004; // 요청 실행 후 전달 받을 임의 코드
 
 
 
@@ -31,6 +32,32 @@ public class GetAuth_PHONE extends AppCompatActivity {
                // startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQ_IMAGE_CAPTURE);
             }
         }
+    }
+
+    @Override // 요청에 대한 응답
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQ_PHONE_PERMISSION:
+
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // 권한 허가된 경우 처리
+                    //Toast.makeText(this, "앱 실행을 위한 권한이 설정 되었습니다", Toast.LENGTH_LONG).show();
+                    System.out.println("카메라 권한 설정 완료");
+
+                } else {
+
+                    // 권한 거절된 경우 처리
+                    //Toast.makeText(this, "앱 실행을 위한 권한이 취소 되었습니다", Toast.LENGTH_LONG).show();
+                    System.out.println("카메라 권한 설정 취소");
+                }
+
+                break;
+
+        }
+
     }
 
     public GetAuth_PHONE() {

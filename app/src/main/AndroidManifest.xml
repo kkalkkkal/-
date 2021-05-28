@@ -21,7 +21,7 @@
         android:theme="@style/Theme.End_Project">
 
         <activity android:name=".MainActivity" />
-        <activity android:name=".IntroActivity"
+        <activity android:name=".LaunchActivity"
             android:theme="@style/SplashTheme">
             <intent-filter><!--이 필터가 있는 부분이 가장 먼저 실행됨-->
                 <action android:name="android.intent.action.MAIN" />

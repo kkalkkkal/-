@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+
 public class GetAuth_CAM extends MainActivity {
 
     static final int PERMISSIONS_REQUEST = 0x0000001;
@@ -26,7 +27,7 @@ public class GetAuth_CAM extends MainActivity {
 
     public void Request_Camera_Permission(Activity activity) { // 카메라 권한 요청
 
-        int permission = ContextCompat.checkSelfPermission(activity.getApplicationContext(), Manifest.permission.CAMERA); // 권한이 이미 있는지 확인
+        int permission = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA); // 권한이 이미 있는지 확인
 
         if(permission == PackageManager.PERMISSION_DENIED){
             // 권한 없어서 요청
@@ -36,7 +37,7 @@ public class GetAuth_CAM extends MainActivity {
 
             }else { // 권한 있음
                 ActivityCompat.requestPermissions(activity,
-                        new String[]{Manifest.permission.CAMERA, Manifest.permission.CAMERA},
+                        new String[]{Manifest.permission.CAMERA},
                         PERMISSIONS_REQUEST);            }
         }
 

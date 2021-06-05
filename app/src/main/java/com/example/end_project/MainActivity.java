@@ -65,35 +65,25 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 import static java.security.AccessController.getContext;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private SurfaceView mSurfaceView;
-    private SurfaceHolder mSurfaceViewHolder;
-    private Handler mHandler;
-    private ImageReader mImageReader;
-    private CameraDevice mCameraDevice;
-    private CaptureRequest.Builder mPreviewBuilder;
-    private CameraCaptureSession mSession;
-    private int mDeviceRotation;
-    private Sensor mAccelerometer;
-    private Sensor mMagnetometer;
-    private SensorManager mSensorManager;
-    private DeviceOrientation deviceOrientation;
-    int mDSI_height, mDSI_width;
-
-    private Intent recognizerIntent;
-    private final int RESULT_SPEECH = 1000;
-    final int PERMISSION = 1;
-    private SpeechRecognizer speech;
-    private TextView textView;
-    private Button sttbtn, ttsbtn;
-    private TextToSpeech tts;
-    private EditText ttsText;
-    private int status;
+    private static final Logger LOGGER = new Logger();
+    private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
+    private static final float TEXT_SIZE_DIP = 10;
+    private Bitmap rgbFrameBitmap = null;
+    private long lastProcessingTimeMs;
+    private Integer sensorOrientation;
+    private Classifier classifier;
+    private BorderedText borderedText;
+    /** Input image size of the model along x axis. */
+    private int imageSizeX;
+    /** Input image size of the model along y axis. */
+    private int imageSizeY;
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     static {

@@ -1,73 +1,20 @@
 package com.example.end_project;
 
-import android.annotation.TargetApi;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
-import android.graphics.Matrix;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCaptureSession;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraDevice;
-import android.hardware.camera2.CameraManager;
-import android.hardware.camera2.CameraMetadata;
-import android.hardware.camera2.CaptureFailure;
-import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureResult;
-import android.hardware.camera2.TotalCaptureResult;
-import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.ExifInterface;
-import android.media.Image;
-import android.media.ImageReader;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
+
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.provider.MediaStore;
-import android.speech.RecognitionListener;
-import android.speech.SpeechRecognizer;
-import android.speech.tts.TextToSpeech;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Scanner;
 import java.util.logging.Logger;
 
-import static java.security.AccessController.getContext;
+import org.tensorflow.lite.examples.tflite.Classifier;
+
 
 
 public class MainActivity extends AppCompatActivity {

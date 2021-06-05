@@ -1,5 +1,7 @@
 package com.example.end_project;
 
+
+
 public class app_activate extends UserGesture{
 
     public int status;
@@ -9,10 +11,15 @@ public class app_activate extends UserGesture{
         this.status = status;
     }
 
+    public app_activate(){
+
+    };
+
     public app_activate(int status) {
         super();
     }
 
+    // 첫 앱 실행시 설정
     public void Default_Mode() {
 
     }

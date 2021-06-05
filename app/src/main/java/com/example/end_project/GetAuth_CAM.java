@@ -5,16 +5,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 
-public class GetAuth_CAM extends MainActivity {
+public class GetAuth_CAM extends AppCompatActivity {
 
     static final int PERMISSIONS_REQUEST = 0x0000001;
     private static final int REQ_IMAGE_CAPTURE =  1002;
@@ -25,25 +27,25 @@ public class GetAuth_CAM extends MainActivity {
     }
 
 
-    public void Request_Camera_Permission(Activity activity) { // 카메라 권한 요청
+    public void Request_Camera_Permission(Activity activity, Context context) { // 카메라 권한 요청
 
-        int permission = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA); // 권한이 이미 있는지 확인
+        if ( Build.VERSION.SDK_INT >= 23 ) {
 
-        if(permission == PackageManager.PERMISSION_DENIED){
-            // 권한 없어서 요청
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA)) {
-                //Toast.makeText(activity, "앱 실행을 위해서는 권한을 설정해야 합니다", Toast.LENGTH_LONG).show();
-                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA},REQ_CAMERA_PERMISSION); // 권한 요청
+            int permission = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA); // 권한이 이미 있는지 확인
 
-            }else { // 권한 있음
-                ActivityCompat.requestPermissions(activity,
-                        new String[]{Manifest.permission.CAMERA},
-                        PERMISSIONS_REQUEST);            }
+            if (permission == PackageManager.PERMISSION_DENIED) {
+                // 권한 없어서 요청
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA)) {
+                    Toast.makeText(activity, "앱 실행을 위해서는 권한을 설정해야 합니다", Toast.LENGTH_LONG).show();
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, REQ_CAMERA_PERMISSION); // 권한 요청
+
+                } else { // 권한 있음
+                    Activate_Camera();
+                    System.out.println("카메라 권한 있음. ");
+                }
+            }
         }
-
     }
-
-
 
 
 
@@ -72,7 +74,6 @@ public class GetAuth_CAM extends MainActivity {
         }
 
     }
-
 
 
     public void Activate_Camera() { // 카메라 실행

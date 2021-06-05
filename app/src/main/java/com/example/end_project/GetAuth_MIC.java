@@ -2,8 +2,10 @@ package com.example.end_project;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
@@ -20,19 +22,22 @@ public class GetAuth_MIC extends AppCompatActivity {
     public GetAuth_MIC() {
     }
 
-    public void Request_MIC_Permission(Activity activity) {
+    public void Request_MIC_Permission(Activity activity, Context context) {
 
-        int permission = ContextCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO); // 권한이 이미 있는지 확인
+        if ( Build.VERSION.SDK_INT >= 23 ) {
+            int permission = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO); // 권한이 이미 있는지 확인
 
-        if(permission == PackageManager.PERMISSION_DENIED){
-            // 권한 없어서 요청
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.RECORD_AUDIO)) {
-                Toast.makeText(activity, "앱 실행을 위해서는 권한을 설정해야 합니다", Toast.LENGTH_LONG).show();
-                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.RECORD_AUDIO},REQ_MIC_PERMISSION);
+            if (permission == PackageManager.PERMISSION_DENIED) {
+                // 권한 없어서 요청
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.RECORD_AUDIO)) {
+                    Toast.makeText(activity, "앱 실행을 위해서는 권한을 설정해야 합니다", Toast.LENGTH_LONG).show();
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.RECORD_AUDIO}, REQ_MIC_PERMISSION);
 
-            }else { // 권한 있음
-                //startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQ_IMAGE_CAPTURE);
-                System.out.println("마이크 권한 있음. ");
+                } else { // 권한 있음
+                    //startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQ_IMAGE_CAPTURE);
+                    Activate_MIC();
+                    System.out.println("마이크 권한 있음. ");
+                }
             }
         }
     }

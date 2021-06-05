@@ -35,12 +35,8 @@ public class G_TTS extends AppCompatActivity implements RecognitionListener, Tex
     public G_TTS() {
     }
 
-    /*public void TTS() { // 구글 TTS api
 
-    }*/
-
-
-
+    // 구글 TTS api
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void TTS() {    //tts speakout 함수 : 입력된 텍스트를 음성으로 출력하는 함수
 

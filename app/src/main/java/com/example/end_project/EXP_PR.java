@@ -1,5 +1,7 @@
 package com.example.end_project;
 
+import com.example.end_project.G_TTS.*;
+
 public class EXP_PR {
 
     public String text_data;
@@ -17,6 +19,8 @@ public class EXP_PR {
     }
 
     public void ExecuteTTS(String text_data) {
+        G_TTS g_tts = new G_TTS();
+        g_tts.TTS();
 
     }
 }

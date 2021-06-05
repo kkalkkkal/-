@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.SpeechRecognizer;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Locale;
 
 import android.speech.tts.TextToSpeech;
 
@@ -73,8 +75,6 @@ public class G_TTS extends AppCompatActivity implements RecognitionListener, Tex
         super.onDestroy();
     }
 
-/*
-
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onInit(int status) {
@@ -84,15 +84,21 @@ public class G_TTS extends AppCompatActivity implements RecognitionListener, Tex
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e("TTS", "This Language is not supported");
             } else {
-                //ttsbtn.setEnabled(true);
+                ttsbtn.setEnabled(true);
                 TTS();
             }
         } else {
             Log.e("TTS", "initalization Failed");
         }
     }
-*/
 
+    @RequiresApi(api=Build.VERSION_CODES.LOLLIPOP)
+    private void speakOut(){    //tts speakout 함수 : 입력된 텍스트를 음성으로 출력하는 함수
+        CharSequence text = ttsText.getText();
+        tts.setPitch((float)0.6);
+        tts.setSpeechRate((float)1);
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH,null,"id1");
+    }
 
     @Override
     public void onReadyForSpeech(Bundle bundle) {
@@ -174,8 +180,4 @@ public class G_TTS extends AppCompatActivity implements RecognitionListener, Tex
 
     }
 
-    @Override
-    public void onInit(int i) {
-
-    }
 }

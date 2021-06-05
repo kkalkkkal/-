@@ -1,5 +1,7 @@
 package com.example.end_project;
 
+import com.example.end_project.G_TTS.*;
+
 public class Information extends EXP_PR {
 
     public String text_data;
@@ -25,6 +27,7 @@ public class Information extends EXP_PR {
 
     @Override
     public void ExecuteTTS(String text_data) {
+
 
     }
 }

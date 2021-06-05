@@ -116,6 +116,12 @@ public abstract class CameraActivity extends AppCompatActivity
 
     setContentView(R.layout.tfe_ic_activity_camera);
 
+    if (hasPermission()) {
+      setFragment();
+    } else {
+      requestPermission();
+    }
+
     // 권한 확인
     GetAuth_CAM getAuth_cam = new GetAuth_CAM();
     GetAuth_MIC getAuth_mic = new GetAuth_MIC();
@@ -381,6 +387,27 @@ public abstract class CameraActivity extends AppCompatActivity
   protected synchronized void runInBackground(final Runnable r) {
     if (handler != null) {
       handler.post(r);
+    }
+  }
+
+  private boolean hasPermission() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      return checkSelfPermission(PERMISSION_CAMERA) == PackageManager.PERMISSION_GRANTED;
+    } else {
+      return true;
+    }
+  }
+
+  private void requestPermission() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      if (shouldShowRequestPermissionRationale(PERMISSION_CAMERA)) {
+        Toast.makeText(
+                CameraActivity.this,
+                "Camera permission is required for this demo",
+                Toast.LENGTH_LONG)
+                .show();
+      }
+      requestPermissions(new String[] {PERMISSION_CAMERA}, PERMISSIONS_REQUEST);
     }
   }
 

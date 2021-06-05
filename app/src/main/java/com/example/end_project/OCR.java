@@ -53,15 +53,8 @@ public class OCR {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void OCR() {
-        try {
-            makeSignature(); //<- 이걸 호출하면 네이버 OCR을 사용할 수 있음.
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        }
+       //     makeSignature(); //<- 이걸 호출하면 네이버 OCR을 사용할 수 있음.
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

@@ -67,12 +67,6 @@ public class G_TTS extends AppCompatActivity implements RecognitionListener, Tex
     }
 
 
-    public void TTS2(String str){
-        tts.setPitch((float) 0.6);
-        tts.setSpeechRate((float) 1);
-        tts.speak(str, TextToSpeech.QUEUE_FLUSH, null, "id1");
-
-    }
 
     @Override
     protected void onDestroy() {    //tts 후 destroy

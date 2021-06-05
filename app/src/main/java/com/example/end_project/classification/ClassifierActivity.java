@@ -91,7 +91,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     final int cropSize = Math.min(previewWidth, previewHeight);
 
     TextView textView_img = findViewById(R.id.ImgResult); // 적중률 90% 넘길 때 표시할 공간
-    G_TTS g_tts = new G_TTS(); // TTS
+   // G_TTS g_tts = new G_TTS(); // TTS
 
     runInBackground(
         new Runnable() {
@@ -103,17 +103,19 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
                   classifier.recognizeImage(rgbFrameBitmap, sensorOrientation);
               lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
               LOGGER.v("Detect: %s", results);
-
+//
+//              if(results.get(0).getConfidence() >= 0.9)
+//              {
+//                String str = results.get(0).getTitle();
+//                textView_img.setText(str);
+//                //g_tts.TTS2(str);
+//              }
 
               runOnUiThread(
                   new Runnable() {
                     @Override
                     public void run() {
-                      if(results.get(0).getConfidence() >= 0.9)
-                      {
-                        textView_img.setText(results.get(0).getTitle());
 
-                      }
 
                       showResultsInBottomSheet(results);
                       showFrameInfo(previewWidth + "x" + previewHeight);

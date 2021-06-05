@@ -23,9 +23,11 @@ import android.media.ImageReader.OnImageAvailableListener;
 import android.os.SystemClock;
 import android.util.Size;
 import android.util.TypedValue;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.end_project.R;
+import com.example.end_project.TTS.G_TTS;
 import com.example.end_project.classification.env.BorderedText;
 import com.example.end_project.classification.env.Logger;
 import org.tensorflow.lite.examples.classification.tflite.Classifier;
@@ -88,6 +90,9 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     rgbFrameBitmap.setPixels(getRgbBytes(), 0, previewWidth, 0, 0, previewWidth, previewHeight);
     final int cropSize = Math.min(previewWidth, previewHeight);
 
+    TextView textView_img = findViewById(R.id.ImgResult); // 적중률 90% 넘길 때 표시할 공간
+    G_TTS g_tts = new G_TTS(); // TTS
+
     runInBackground(
         new Runnable() {
           @Override
@@ -99,10 +104,17 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
               lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
               LOGGER.v("Detect: %s", results);
 
+
               runOnUiThread(
                   new Runnable() {
                     @Override
                     public void run() {
+                      if(results.get(0).getConfidence() >= 0.9)
+                      {
+                        textView_img.setText(results.get(0).getTitle());
+
+                      }
+
                       showResultsInBottomSheet(results);
                       showFrameInfo(previewWidth + "x" + previewHeight);
                       showCropInfo(imageSizeX + "x" + imageSizeY);

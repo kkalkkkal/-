@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/black"
-                tools:context="org.tensorflow.lite.examples.classification.CameraActivity" />
+                tools:context="com.example.end_project.classification.CameraActivity" />
 
 
             <androidx.appcompat.widget.Toolbar
@@ -50,7 +50,8 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/tfl2_logo" />
+                    android:src="@drawable/tfl2_logo"
+                    android:visibility="invisible"/>
             </androidx.appcompat.widget.Toolbar>
 
         </RelativeLayout>
@@ -68,6 +69,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.7" />
+
+        <TextView
+            android:id="@+id/ImgResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="이미지 분류 결과"
+            android:textColor="#FFFFFF"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.9" />
 
         <Button
             android:id="@+id/sttStart"

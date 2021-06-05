@@ -43,31 +43,19 @@ public class G_ASR extends AppCompatActivity implements RecognitionListener {
     final int PERMISSION = 1;
     private SpeechRecognizer speech;
     private TextView textView;
-    private Button sttbtn,ttsbtn;
-    private TextToSpeech tts;
-    private EditText ttsText;
+    private Button sttbtn;
 
-    public void ASR(RecognitionListener listener, Context context) throws Exception { // google ASR API
+
+    public void ASR() { // google ASR API
 
         speech = SpeechRecognizer.createSpeechRecognizer(this);
         speech.setRecognitionListener(this);
 
-        textView = findViewById(R.id.sttResult);
-        sttbtn = findViewById(R.id.sttStart);
-        findViewById(R.id.sttStart).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "ko-KR"); //언어지정입니다.
-                recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getPackageName());
-                recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
-                recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);   //검색을 말한 결과를 보여주는 갯수
-                startActivityForResult(recognizerIntent, RESULT_SPEECH);
-            }
-        });
+
 
 
     }
+
 
     public G_ASR() { // 생성자
     }

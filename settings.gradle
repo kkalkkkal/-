@@ -1,2 +1,8 @@
 rootProject.name = "End_Project"
 include ':app'
+include ':models'
+include ':lib_support'
+include ':models'
+include ':lib_task_api'
+include ':lib_support'
+include ':models'

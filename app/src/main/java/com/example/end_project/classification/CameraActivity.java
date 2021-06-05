@@ -19,6 +19,7 @@ package com.example.end_project.classification;
 import android.Manifest;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
@@ -34,12 +35,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -51,6 +56,7 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.end_project.*;
+import com.example.end_project.ASR.G_ASR;
 import com.example.end_project.classification.env.ImageUtils;
 import com.example.end_project.classification.env.Logger;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -61,6 +67,7 @@ import org.tensorflow.lite.examples.classification.tflite.Classifier.Model;
 import org.tensorflow.lite.examples.classification.tflite.Classifier.Recognition;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class CameraActivity extends AppCompatActivity
@@ -108,6 +115,35 @@ public abstract class CameraActivity extends AppCompatActivity
   private Device device = Device.CPU;
   private int numThreads = -1;
 
+  private Intent recognizerIntent;
+  private final int RESULT_SPEECH = 1000;
+  final int PERMISSION = 1;
+  private SpeechRecognizer speech;
+  private TextView textView;
+  private Button sttbtn;
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {     //sst에서 음성 인식 결과를 text로 화면에 출력
+    super.onActivityResult(requestCode, resultCode, data);
+
+    switch (requestCode) {
+      case RESULT_SPEECH : {
+        if (resultCode == RESULT_OK && null != data) {
+          ArrayList<String> text = data
+                  .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+          for(int i = 0; i < text.size() ; i++){
+            textView.setText(text.get(i));
+          }
+          for(int i = 0; i < text.size() ; i++){
+            Log.e("MainActivity", "onActivityResult text : " + text.get(i));
+          }
+        }
+
+        break;
+      }
+    }
+  }
+
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
@@ -135,6 +171,22 @@ public abstract class CameraActivity extends AppCompatActivity
     getAuth_mic.Request_MIC_Permission(this, this);
     // 스피커 확인
     getAuth_phone.Request_Phone_Permission(this, this);
+
+
+    textView = findViewById(R.id.sttResult);
+    sttbtn = findViewById(R.id.sttStart);
+    findViewById(R.id.sttStart).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "ko-KR"); //언어지정입니다.
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getPackageName());
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);   //검색을 말한 결과를 보여주는 갯수
+        startActivityForResult(recognizerIntent, RESULT_SPEECH);
+      }
+    });
+
 
 
     threadsTextView = findViewById(R.id.threads);
@@ -350,6 +402,8 @@ public abstract class CameraActivity extends AppCompatActivity
   public synchronized void onResume() {
     LOGGER.d("onResume " + this);
     super.onResume();
+
+
 
     handlerThread = new HandlerThread("inference");
     handlerThread.start();

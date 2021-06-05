@@ -24,6 +24,7 @@ import android.os.Trace;
 import android.util.Log;
 
 import org.tensorflow.lite.support.common.FileUtil;
+import org.tensorflow.lite.support.common.TensorOperator;
 import org.tensorflow.lite.support.image.TensorImage;
 import org.tensorflow.lite.support.label.Category;
 import org.tensorflow.lite.support.metadata.MetadataExtractor;
@@ -43,6 +44,12 @@ import static java.lang.Math.min;
 /** A classifier specialized to label images using TensorFlow Lite. */
 public abstract class Classifier {
   public static final String TAG = "ClassifierWithTaskApi";
+
+  protected abstract String getLabelPath();
+
+  protected abstract TensorOperator getPreprocessNormalizeOp();
+
+  protected abstract TensorOperator getPostprocessNormalizeOp();
 
   /** The model type used for classification. */
   public enum Model {

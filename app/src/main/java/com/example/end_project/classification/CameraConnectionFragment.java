@@ -385,7 +385,7 @@ public class CameraConnectionFragment extends Fragment {
         throw new RuntimeException("Time out waiting to lock camera opening.");
       }
 
-      manager.openCamera(cameraId, stateCallback, backgroundHandler);
+      manager.openCamera(cameraId, stateCallback, backgroundHandler); // 빨간 밑줄이 있지만 괜찮음.
     } catch (final CameraAccessException e) {
       LOGGER.e(e, "Exception!");
     } catch (final InterruptedException e) {

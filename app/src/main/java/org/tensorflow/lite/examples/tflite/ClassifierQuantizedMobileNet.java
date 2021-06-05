@@ -18,6 +18,8 @@ package org.tensorflow.lite.examples.tflite;
 import android.app.Activity;
 
 import org.tensorflow.lite.examples.tflite.Classifier.Device;
+import org.tensorflow.lite.support.common.TensorOperator;
+import org.tensorflow.lite.support.common.ops.NormalizeOp;
 
 import java.io.IOException;
 
@@ -31,6 +33,16 @@ public class ClassifierQuantizedMobileNet extends org.tensorflow.lite.examples.t
      * @param numThreads the number of threads during the inference
      * @throws IOException if the model is not loaded correctly
      */
+
+    private static final float IMAGE_MEAN = 0.0f;
+
+  private static final float IMAGE_STD = 1.0f;
+
+  /** Quantized MobileNet requires additional dequantization to the output probability. */
+  private static final float PROBABILITY_MEAN = 0.0f;
+
+  private static final float PROBABILITY_STD = 255.0f;
+
   public ClassifierQuantizedMobileNet(Activity activity, Device device, int numThreads)
       throws IOException {
     super(activity, device, numThreads);
@@ -42,5 +54,20 @@ public class ClassifierQuantizedMobileNet extends org.tensorflow.lite.examples.t
     // see build.gradle for where to obtain this file. It should be auto
     // downloaded into assets.
     return "converted_tflite_quantized/new/model.tflite";
+  }
+
+  @Override
+  protected String getLabelPath() {
+    return "converted_tflite_quantized/labels.txt";
+  }
+
+  @Override
+  protected TensorOperator getPreprocessNormalizeOp() {
+    return new NormalizeOp(IMAGE_MEAN, IMAGE_STD);
+  }
+
+  @Override
+  protected TensorOperator getPostprocessNormalizeOp() {
+    return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
   }
 }

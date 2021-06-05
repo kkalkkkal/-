@@ -16,7 +16,7 @@ import com.example.end_project.TTS.G_TTS;
 import java.util.logging.Logger;
 
 
-import org.tensorflow.lite.examples.tflite.Classifier;
+//import org.tensorflow.lite.examples.tflite.Classifier;
 
 
 
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap rgbFrameBitmap = null;
     private long lastProcessingTimeMs;
     private Integer sensorOrientation;
-    private Classifier classifier;
+   // private Classifier classifier;
    // private BorderedText borderedText;
     /** Input image size of the model along x axis. */
     private int imageSizeX;

@@ -1,2 +1,9 @@
-0 namyang
-1 seoul
+0 Delicious_Milk_GT
+1 Delicious_Milk_GT(Chocolate)
+2 SeoulMilk(Chocolate)
+3 SeoulMilk(Coffee)
+4 SeoulMilk(lowfat)
+5 SeoulMilkStrawberry(500ml)
+6 SeoulMilk(500ml)
+7 Delicious_Milk_GT(Coffee)
+8 Coffee_Mochaccino

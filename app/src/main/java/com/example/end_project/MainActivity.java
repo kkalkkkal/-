@@ -11,7 +11,10 @@ import android.util.SparseIntArray;
 import android.view.WindowManager;
 
 
+import com.example.end_project.TTS.G_TTS;
+
 import java.util.logging.Logger;
+
 
 import org.tensorflow.lite.examples.tflite.Classifier;
 
@@ -19,14 +22,14 @@ import org.tensorflow.lite.examples.tflite.Classifier;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final Logger LOGGER = new Logger();
+  //  private static final Logger LOGGER = new Logger();
     private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
     private static final float TEXT_SIZE_DIP = 10;
     private Bitmap rgbFrameBitmap = null;
     private long lastProcessingTimeMs;
     private Integer sensorOrientation;
     private Classifier classifier;
-    private BorderedText borderedText;
+   // private BorderedText borderedText;
     /** Input image size of the model along x axis. */
     private int imageSizeX;
     /** Input image size of the model along y axis. */

@@ -13,7 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-package org.tensorflow.lite.examples.tflite;
+package org.tensorflow.lite.examples.classification.tflite;
+
+import static java.lang.Math.min;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -22,7 +24,11 @@ import android.graphics.RectF;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.util.Log;
-
+import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import org.tensorflow.lite.examples.classification.tflite.Classifier.Device;
 import org.tensorflow.lite.support.common.FileUtil;
 import org.tensorflow.lite.support.image.TensorImage;
 import org.tensorflow.lite.support.label.Category;
@@ -33,20 +39,16 @@ import org.tensorflow.lite.task.vision.classifier.Classifications;
 import org.tensorflow.lite.task.vision.classifier.ImageClassifier;
 import org.tensorflow.lite.task.vision.classifier.ImageClassifier.ImageClassifierOptions;
 
-import java.io.IOException;
-import java.nio.MappedByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.lang.Math.min;
-
 /** A classifier specialized to label images using TensorFlow Lite. */
 public abstract class Classifier {
   public static final String TAG = "ClassifierWithTaskApi";
 
   /** The model type used for classification. */
   public enum Model {
-    QUANTIZED_MOBILENET
+    FLOAT_MOBILENET,
+    QUANTIZED_MOBILENET,
+    FLOAT_EFFICIENTNET,
+    QUANTIZED_EFFICIENTNET
   }
 
   /** The runtime device type used for executing classification. */
@@ -80,7 +82,13 @@ public abstract class Classifier {
       throws IOException {
     if (model == Model.QUANTIZED_MOBILENET) {
       return new ClassifierQuantizedMobileNet(activity, device, numThreads);
-    }  else {
+    } else if (model == Model.FLOAT_MOBILENET) {
+      return new ClassifierFloatMobileNet(activity, device, numThreads);
+    } else if (model == Model.FLOAT_EFFICIENTNET) {
+      return new ClassifierFloatEfficientNet(activity, device, numThreads);
+    } else if (model == Model.QUANTIZED_EFFICIENTNET) {
+      return new ClassifierQuantizedEfficientNet(activity, device, numThreads);
+    } else {
       throw new UnsupportedOperationException();
     }
   }

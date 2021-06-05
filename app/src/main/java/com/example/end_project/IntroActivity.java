@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.end_project.classification.ClassifierActivity;
+
 
 public class IntroActivity extends AppCompatActivity {
 
@@ -20,7 +22,7 @@ public class IntroActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             runOnUiThread(()->{
-                Intent mainintent = new Intent(this, MainActivity.class);
+                Intent mainintent = new Intent(this, ClassifierActivity.class);
                 startActivity(mainintent); // 메인 액티비티로 이동
                 finish();
             });

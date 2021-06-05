@@ -1,6 +1,6 @@
 package com.example.end_project;
 
-import com.example.end_project.G_TTS.*;
+import com.example.end_project.TTS.G_TTS;
 
 public class EXP_PR {
 

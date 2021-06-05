@@ -27,7 +27,7 @@ public class GetAuth_CAM extends AppCompatActivity {
     }
 
 
-    public void Request_Camera_Permission(Activity activity, Context context) { // 카메라 권한 요청
+    public Boolean Request_Camera_Permission(Activity activity, Context context) { // 카메라 권한 요청
 
         if ( Build.VERSION.SDK_INT >= 23 ) {
 
@@ -38,13 +38,16 @@ public class GetAuth_CAM extends AppCompatActivity {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA)) {
                     Toast.makeText(activity, "앱 실행을 위해서는 권한을 설정해야 합니다", Toast.LENGTH_LONG).show();
                     ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, REQ_CAMERA_PERMISSION); // 권한 요청
-
+                    return Boolean.FALSE;
                 } else { // 권한 있음
                     Activate_Camera();
                     System.out.println("카메라 권한 있음. ");
+                    return Boolean.TRUE;
                 }
             }
         }
+
+        return false;
     }
 
 

@@ -71,9 +71,12 @@ import org.tensorflow.lite.examples.classification.tflite.Classifier.Recognition
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -430,28 +433,44 @@ public abstract class CameraActivity extends AppCompatActivity
 
   // 구글 TTS api
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  public void Information() {    //tts speakout 함수 : 입력된 텍스트를 음성으로 출력하는 함수
+  public void Information() throws FileNotFoundException {    //tts speakout 함수 : 입력된 텍스트를 음성으로 출력하는 함수
 
+    StringBuffer strBuffer = new StringBuffer();
+    try{
+      InputStream is = new FileInputStream("raw/inform.txt");
+      BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+      String line="";
+      while((line=reader.readLine())!=null){
+        strBuffer.append(line+"\n");
+      }
 
-    String str = "";
-    try {
+      reader.close();
+      is.close();
+    }catch (IOException e){
+      e.printStackTrace();
+
+    }
+
+    String str = strBuffer.toString();//"안내";
+    /*try {
       //파일 객체 생성
       File file = new File("raw/inform.txt");
       //입력 스트림 생성
+      System.out.println(file);
       FileReader filereader = new FileReader(file);
       BufferedReader bufrd = new BufferedReader(filereader) ;
       str = bufrd.readLine();
-            /*int singleCh = 0;
+            *//*int singleCh = 0;
             while ((singleCh = filereader.read()) != -1) {
                 System.out.print((char) singleCh);
-            }*/
+            }*//*
       bufrd.close() ;
       filereader.close();
     } catch (FileNotFoundException e) {
       // TODO: handle exception
     } catch (IOException e) {
       System.out.println(e);
-    }
+    }*/
     CharSequence text = str;//ttsText.getText(); // 여기에 원하는 것
     tts.setPitch((float) 0.6);
     tts.setSpeechRate((float) 1);
@@ -469,7 +488,11 @@ public abstract class CameraActivity extends AppCompatActivity
         Log.e("TTS", "This Language is not supported");
       } else {
         //ttsbtn.setEnabled(true);
-        Information();
+        try {
+          Information();
+        } catch (FileNotFoundException e) {
+          e.printStackTrace();
+        }
       }
     } else {
       Log.e("TTS", "initalization Failed");

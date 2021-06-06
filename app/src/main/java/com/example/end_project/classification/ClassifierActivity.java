@@ -116,18 +116,22 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
                   new Runnable() {
                     @Override
                     public void run() {
-                      if(results.get(0).getConfidence() >= 0.9)
-                      {
-                        String str = results.get(0).getTitle();
-                        textView_img.setText(str);
-                        CharSequence text = str;//ttsText.getText(); // 여기에 원하는 것
 
+                        if (results.get(0).getConfidence() >= 0.95) {
+                          String str = results.get(0).getTitle();
+                          textView_img.setText(str);
+                          CharSequence text = str;//ttsText.getText(); // 여기에 원하는 것
 
+                          if (tts.isSpeaking()){
+
+                          }else {
                             tts.setPitch((float) 0.6);
-                            tts.setSpeechRate((float) 1);
+                            tts.setSpeechRate((float) 1.5);
                             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "id1");
                             tts.playSilentUtterance(1000, TextToSpeech.QUEUE_ADD, null);
-                      }
+
+                          }
+                        }
 
                       showResultsInBottomSheet(results);
                       showFrameInfo(previewWidth + "x" + previewHeight);

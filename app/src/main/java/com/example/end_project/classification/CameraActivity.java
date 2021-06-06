@@ -21,6 +21,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -32,6 +33,7 @@ import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
@@ -59,8 +61,6 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.end_project.*;
-import com.example.end_project.ASR.G_ASR;
-import com.example.end_project.TTS.G_TTS;
 import com.example.end_project.classification.env.ImageUtils;
 import com.example.end_project.classification.env.Logger;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -152,6 +152,16 @@ public abstract class CameraActivity extends AppCompatActivity
                   .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
           for(int i = 0; i < text.size() ; i++){
             textView.setText(text.get(i));
+            if(text.get(i).contains("도움말") || text.get(i).contains("가이드라인")) // 도움말 & 가이드라인 이란 키워드에 반응함.
+            {
+              try {
+                Information(); // 도움말
+              } catch (FileNotFoundException e) {
+                e.printStackTrace();
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+            }
           }
           for(int i = 0; i < text.size() ; i++){
             Log.e("MainActivity", "onActivityResult text : " + text.get(i));
@@ -432,48 +442,36 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   // 구글 TTS api
-  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-  public void Information() throws FileNotFoundException {    //tts speakout 함수 : 입력된 텍스트를 음성으로 출력하는 함수
+  //@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  public void Information() throws IOException {    //tts speakout 함수 : 입력된 텍스트를 음성으로 출력하는 함수
+    AssetManager am = getResources().getAssets() ;
+    InputStream is = null ;
+    byte buf[] = new byte[1024] ;
+    String str = "" ;
 
-    StringBuffer strBuffer = new StringBuffer();
-    try{
-      InputStream is = new FileInputStream("raw/inform.txt");
-      BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-      String line="";
-      while((line=reader.readLine())!=null){
-        strBuffer.append(line+"\n");
-      }
+    try {
+      is = am.open("raw/inform.txt") ;
+      BufferedReader bufrd = new BufferedReader(new InputStreamReader(is)) ;
+      str = bufrd.readLine();
 
-      reader.close();
-      is.close();
-    }catch (IOException e){
+      bufrd.close() ;
+      is.close() ;
+    } catch (Exception e) {
       e.printStackTrace();
-
     }
 
-    String str = strBuffer.toString();//"안내";
-    /*try {
-      //파일 객체 생성
-      File file = new File("raw/inform.txt");
-      //입력 스트림 생성
-      System.out.println(file);
-      FileReader filereader = new FileReader(file);
-      BufferedReader bufrd = new BufferedReader(filereader) ;
-      str = bufrd.readLine();
-            *//*int singleCh = 0;
-            while ((singleCh = filereader.read()) != -1) {
-                System.out.print((char) singleCh);
-            }*//*
-      bufrd.close() ;
-      filereader.close();
-    } catch (FileNotFoundException e) {
-      // TODO: handle exception
-    } catch (IOException e) {
-      System.out.println(e);
-    }*/
+    if (is != null) {
+      try {
+        is.close() ;
+      } catch (Exception e) {
+        e.printStackTrace() ;
+      }
+    }
+
+
     CharSequence text = str;//ttsText.getText(); // 여기에 원하는 것
     tts.setPitch((float) 0.6);
-    tts.setSpeechRate((float) 1);
+    tts.setSpeechRate((float) 1.5);
     tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "id1");
   }
 
@@ -491,6 +489,8 @@ public abstract class CameraActivity extends AppCompatActivity
         try {
           Information();
         } catch (FileNotFoundException e) {
+          e.printStackTrace();
+        } catch (IOException e) {
           e.printStackTrace();
         }
       }

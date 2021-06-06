@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         //
 
 
-        G_TTS g_tts = new G_TTS();
+        //G_TTS g_tts = new G_TTS();
 
 
 //sst

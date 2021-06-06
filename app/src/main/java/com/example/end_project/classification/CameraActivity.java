@@ -37,6 +37,7 @@ import android.os.HandlerThread;
 import android.os.Trace;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -45,6 +46,7 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -52,29 +54,37 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.end_project.*;
 import com.example.end_project.ASR.G_ASR;
+import com.example.end_project.TTS.G_TTS;
 import com.example.end_project.classification.env.ImageUtils;
 import com.example.end_project.classification.env.Logger;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-
 
 import org.tensorflow.lite.examples.classification.tflite.Classifier.Device;
 import org.tensorflow.lite.examples.classification.tflite.Classifier.Model;
 import org.tensorflow.lite.examples.classification.tflite.Classifier.Recognition;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
 
 public abstract class CameraActivity extends AppCompatActivity
     implements OnImageAvailableListener,
         Camera.PreviewCallback,
         View.OnClickListener,
-        AdapterView.OnItemSelectedListener {
+        AdapterView.OnItemSelectedListener,TextToSpeech.OnInitListener {
   private static final Logger LOGGER = new Logger();
 
   private static final int PERMISSIONS_REQUEST = 1;
@@ -115,12 +125,18 @@ public abstract class CameraActivity extends AppCompatActivity
   private Device device = Device.CPU;
   private int numThreads = -1;
 
+  //SST
   private Intent recognizerIntent;
   private final int RESULT_SPEECH = 1000;
   final int PERMISSION = 1;
   private SpeechRecognizer speech;
   private TextView textView;
-  private Button sttbtn;
+  private Button sttbtn, ttsbtn;
+
+  // TTS
+  static public TextToSpeech tts;
+  private EditText ttsText;
+  private int status;
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {     //sst에서 음성 인식 결과를 text로 화면에 출력
@@ -163,6 +179,7 @@ public abstract class CameraActivity extends AppCompatActivity
     GetAuth_MIC getAuth_mic = new GetAuth_MIC();
     GetAuth_PHONE getAuth_phone = new GetAuth_PHONE();
 
+
     // 카메라 확인
     if (getAuth_cam.Request_Camera_Permission(this, this)){
       setFragment();
@@ -172,6 +189,7 @@ public abstract class CameraActivity extends AppCompatActivity
     // 스피커 확인
     getAuth_phone.Request_Phone_Permission(this, this);
 
+    tts = new TextToSpeech(this, this);
 
     textView = findViewById(R.id.sttResult);
     sttbtn = findViewById(R.id.sttStart);
@@ -399,16 +417,75 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   @Override
-  public synchronized void onResume() {
+  public synchronized void onResume() { // 여기서 초기화 진행
     LOGGER.d("onResume " + this);
     super.onResume();
 
-
+    //g_tts.Information();
 
     handlerThread = new HandlerThread("inference");
     handlerThread.start();
     handler = new Handler(handlerThread.getLooper());
   }
+
+  // 구글 TTS api
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  public void Information() {    //tts speakout 함수 : 입력된 텍스트를 음성으로 출력하는 함수
+
+
+    String str = "";
+    try {
+      //파일 객체 생성
+      File file = new File("raw/inform.txt");
+      //입력 스트림 생성
+      FileReader filereader = new FileReader(file);
+      BufferedReader bufrd = new BufferedReader(filereader) ;
+      str = bufrd.readLine();
+            /*int singleCh = 0;
+            while ((singleCh = filereader.read()) != -1) {
+                System.out.print((char) singleCh);
+            }*/
+      bufrd.close() ;
+      filereader.close();
+    } catch (FileNotFoundException e) {
+      // TODO: handle exception
+    } catch (IOException e) {
+      System.out.println(e);
+    }
+    CharSequence text = str;//ttsText.getText(); // 여기에 원하는 것
+    tts.setPitch((float) 0.6);
+    tts.setSpeechRate((float) 1);
+    tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "id1");
+  }
+
+
+
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  public void onInit(int status) {
+    this.status = status;        //tts 수행 성공시 초기화 정보
+    if (status == TextToSpeech.SUCCESS) {
+      int result = tts.setLanguage(Locale.KOREA);
+      if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+        Log.e("TTS", "This Language is not supported");
+      } else {
+        //ttsbtn.setEnabled(true);
+        Information();
+      }
+    } else {
+      Log.e("TTS", "initalization Failed");
+    }
+  }
+
+  @RequiresApi(api=Build.VERSION_CODES.LOLLIPOP)
+  public void speakOut(String str){    //tts speakout 함수 : 입력된 텍스트를 음성으로 출력하는 함수
+
+    CharSequence text = str;//ttsText.getText();
+    tts.setPitch((float)0.6);
+    tts.setSpeechRate((float)1);
+    tts.speak(text, TextToSpeech.QUEUE_FLUSH,null,"id1");
+  }
+
+
 
   @Override
   public synchronized void onPause() {
@@ -433,7 +510,11 @@ public abstract class CameraActivity extends AppCompatActivity
   }
 
   @Override
-  public synchronized void onDestroy() {
+  public synchronized void onDestroy() { // TTS + Camera
+    if (tts != null) {
+      tts.stop();
+      tts.shutdown();
+    }
     LOGGER.d("onDestroy " + this);
     super.onDestroy();
   }
@@ -572,6 +653,8 @@ public abstract class CameraActivity extends AppCompatActivity
         return 0;
     }
   }
+
+
 
   @UiThread
   protected void showResultsInBottomSheet(List<Recognition> results) {

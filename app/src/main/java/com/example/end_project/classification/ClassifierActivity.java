@@ -21,6 +21,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.SystemClock;
+import android.speech.tts.TextToSpeech;
 import android.util.Size;
 import android.util.TypedValue;
 import android.widget.TextView;
@@ -30,6 +31,8 @@ import com.example.end_project.R;
 import com.example.end_project.TTS.G_TTS;
 import com.example.end_project.classification.env.BorderedText;
 import com.example.end_project.classification.env.Logger;
+
+import org.checkerframework.checker.units.qual.g;
 import org.tensorflow.lite.examples.classification.tflite.Classifier;
 import org.tensorflow.lite.examples.classification.tflite.Classifier.Device;
 import org.tensorflow.lite.examples.classification.tflite.Classifier.Model;
@@ -85,13 +88,16 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Config.ARGB_8888);
   }
 
+
+  static int ttsState = 0;
+  public Boolean mutex;
+
   @Override
   protected void processImage() {
     rgbFrameBitmap.setPixels(getRgbBytes(), 0, previewWidth, 0, 0, previewWidth, previewHeight);
     final int cropSize = Math.min(previewWidth, previewHeight);
 
     TextView textView_img = findViewById(R.id.ImgResult); // 적중률 90% 넘길 때 표시할 공간
-   // G_TTS g_tts = new G_TTS(); // TTS
 
     runInBackground(
         new Runnable() {
@@ -103,19 +109,25 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
                   classifier.recognizeImage(rgbFrameBitmap, sensorOrientation);
               lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
               LOGGER.v("Detect: %s", results);
-//
-//              if(results.get(0).getConfidence() >= 0.9)
-//              {
-//                String str = results.get(0).getTitle();
-//                textView_img.setText(str);
-//                //g_tts.TTS2(str);
-//              }
+
+
 
               runOnUiThread(
                   new Runnable() {
                     @Override
                     public void run() {
+                      if(results.get(0).getConfidence() >= 0.9)
+                      {
+                        String str = results.get(0).getTitle();
+                        textView_img.setText(str);
+                        CharSequence text = str;//ttsText.getText(); // 여기에 원하는 것
 
+
+                            tts.setPitch((float) 0.6);
+                            tts.setSpeechRate((float) 1);
+                            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "id1");
+                            tts.playSilentUtterance(1000, TextToSpeech.QUEUE_ADD, null);
+                      }
 
                       showResultsInBottomSheet(results);
                       showFrameInfo(previewWidth + "x" + previewHeight);
@@ -129,6 +141,16 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
             readyForNextImage();
           }
         });
+  }
+
+  @Override
+  public void onDestroy() {    //tts 후 destroy
+    if (tts != null) {
+      tts.stop();
+      tts.shutdown();
+      ttsState = 0;
+    }
+    super.onDestroy();
   }
 
   @Override

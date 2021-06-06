@@ -14,13 +14,14 @@ public class EXP_PR {
         this.text_data = text_data;
     }
 
-    public EXP_PR(String text_data) {
-        this.text_data = text_data;
+    public EXP_PR() {
+        //super();
+
     }
 
     public void ExecuteTTS(String text_data) {
-        G_TTS g_tts = new G_TTS();
-        g_tts.TTS();
+        //G_TTS g_tts = new G_TTS();
+        //g_tts.TTS();
 
     }
 }

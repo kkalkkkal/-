@@ -82,7 +82,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.9" />
+            app:layout_constraintVertical_bias="0.1" />
 
         <Button
             android:id="@+id/sttStart"
@@ -94,7 +94,7 @@
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.849" />
+            app:layout_constraintVertical_bias="0.80" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

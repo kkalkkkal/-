@@ -21,6 +21,7 @@
         android:theme="@style/Theme.End_Project">
         <activity android:name=".classification.CameraActivity" />
         <activity android:name=".MainActivity" />
+        <activity android:name=".classification.DetectorActivity" />
         <activity android:name=".classification.ClassifierActivity" />
         <activity android:name=".IntroActivity"
             android:theme="@style/SplashTheme">

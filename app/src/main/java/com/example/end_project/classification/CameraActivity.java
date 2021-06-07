@@ -359,6 +359,10 @@ public abstract class CameraActivity extends AppCompatActivity
     processImage();
   }
 
+  public boolean isDebug() {
+    return debug;
+  }
+
   /** Callback for Camera2 API */
   @Override
   public void onImageAvailable(final ImageReader reader) {

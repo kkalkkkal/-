@@ -134,7 +134,7 @@ public abstract class CameraActivity extends AppCompatActivity
   final int PERMISSION = 1;
   private SpeechRecognizer speech;
   private TextView textView;
-  private Button sttbtn, ttsbtn;
+  private Button sttbtn, ttsbtn, modebtn;
 
   // TTS
   static public TextToSpeech tts;
@@ -218,6 +218,15 @@ public abstract class CameraActivity extends AppCompatActivity
       }
     });
 
+    modebtn = findViewById(R.id.change_mode);
+    modebtn.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Intent intent = new Intent(this, DetectorActivity.class);
+        startActivity(intent);
+        finish();
+      }
+    });
 
 
     threadsTextView = findViewById(R.id.threads);

@@ -16,8 +16,10 @@
 
 package org.tensorflow.lite.examples.detection;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -27,12 +29,29 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.SystemClock;
+import android.util.Base64;
 import android.util.Size;
 import android.util.TypedValue;
 import android.widget.Toast;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.tensorflow.lite.examples.detection.customview.OverlayView;
 import org.tensorflow.lite.examples.detection.customview.OverlayView.DrawCallback;
 import org.tensorflow.lite.examples.detection.env.BorderedText;
@@ -56,7 +75,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   private static final String TF_OD_API_LABELS_FILE = "label.txt";
   private static final DetectorMode MODE = DetectorMode.TF_OD_API;
   // Minimum detection confidence to track a detection.
-  private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;  // 최소 통과 적중률?
+  private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.99f;  // 최소 통과 적중률?
   private static final boolean MAINTAIN_ASPECT = false;
   private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
   private static final boolean SAVE_PREVIEW_BITMAP = false;
@@ -207,6 +226,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
                 result.setLocation(location);
                 mappedRecognitions.add(result);
+
+                StringBuffer response = new StringBuffer();
+                response = OCRGeneralAPIDemo(cropCopyBitmap);
               }
             }
 
@@ -264,4 +286,90 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
   protected void setNumThreads(final int numThreads) {
     runInBackground(() -> detector.setNumThreads(numThreads));
   }
+
+  public synchronized StringBuffer OCRGeneralAPIDemo(Bitmap bitmap) {
+
+    // API invoke URL
+    String apiURL = "https://cf667635821d4e27a149417a936140aa.apigw.ntruss.com/custom/v1/8069/4ee8c59db77aec20ccac405e431d4e27f0345fe1b12edb62281840e6670452cc/general";
+
+    // API secretKey
+    String secretKey = "Sk16UE5tUFltdlpyVmlCc1hGYlRaaWpUbHNrZWR5cHg=";
+
+    try {
+      URL url = new URL(apiURL);
+      HttpURLConnection con = (HttpURLConnection)url.openConnection();
+      con.setUseCaches(false);
+      con.setDoInput(true);
+      con.setDoOutput(true);
+      con.setRequestMethod("POST");
+      con.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+      con.setRequestProperty("X-OCR-SECRET", secretKey);
+
+      JSONObject json = new JSONObject();
+      json.put("version", "V2");
+      json.put("requestId", UUID.randomUUID().toString());
+      json.put("timestamp", System.currentTimeMillis());
+      JSONObject image = new JSONObject();
+      image.put("format", "jpg");
+      //image.put("url", "https://kr.object.ncloudstorage.com/ocr-ci-test/sample/1.jpg"); // image should be public, otherwise, should use data
+
+      ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+      Resources res= getResources();
+
+      bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+
+      byte[] image2 = outStream.toByteArray();
+      String profileImageBase64 = Base64.encodeToString(image2, 0);
+
+      image.put("data", profileImageBase64); // buffer
+      image.put("name", "demo");
+      JSONArray images = new JSONArray();
+      images.put(image);
+      json.put("images", images);
+      String postParams = json.toString();
+
+      DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+      wr.writeBytes(postParams);
+      wr.flush();
+      wr.close();
+
+      int responseCode = con.getResponseCode();
+      BufferedReader br;
+      if (responseCode == 200) {
+        br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+      } else {
+        br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+      }
+      String inputLine;
+      StringBuffer response = new StringBuffer();
+      while ((inputLine = br.readLine()) != null) {
+        response.append(inputLine);
+      }
+      br.close();
+
+      System.out.println(response);
+
+      return response;
+    } catch (Exception e) {
+      System.out.println(e);
+      return null;
+    }
+  }
+
+  public static void copyInputStreamToFile(InputStream inputStream, File file) {
+
+    try (FileOutputStream outputStream = new FileOutputStream(file)) {
+      int read;
+      byte[] bytes = new byte[1024];
+
+      while ((read = inputStream.read(bytes)) != -1) {
+        outputStream.write(bytes, 0, read);
+      }
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
 }

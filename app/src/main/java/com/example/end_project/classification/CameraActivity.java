@@ -356,6 +356,7 @@ public abstract class CameraActivity extends AppCompatActivity
             isProcessingFrame = false;
           }
         };
+
     processImage();
   }
 

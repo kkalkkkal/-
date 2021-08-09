@@ -27,7 +27,8 @@ import org.tensorflow.lite.examples.classification.tflite.Classifier.Recognition
 import java.util.List;
 
 public class RecognitionScoreView extends View implements ResultsView {
-  private static final float TEXT_SIZE_DIP = 16;
+  private static final float TEXT_SIZE_DIP = 16; // classification font size
+  // private static final float TEXT_SIZE_DIP = 14; // object-detection font size
   private final float textSizePx;
   private final Paint fgPaint;
   private final Paint bgPaint;

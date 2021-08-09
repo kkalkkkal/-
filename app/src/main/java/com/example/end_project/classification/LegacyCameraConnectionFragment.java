@@ -60,6 +60,8 @@ public class LegacyCameraConnectionFragment extends Fragment {
   private int layout;
   /** An {@link AutoFitTextureView} for camera preview. */
   private AutoFitTextureView textureView;
+  private SurfaceTexture availableSurfaceTexture = null;
+
   /**
    * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a {@link
    * TextureView}.
@@ -104,6 +106,7 @@ public class LegacyCameraConnectionFragment extends Fragment {
           textureView.setAspectRatio(s.height, s.width);
 
           camera.startPreview();
+
         }
 
         @Override

@@ -58,5 +58,6 @@ dependencies {
     androidTestImplementation 'com.google.truth:truth:1.0.1'
     implementation 'org.tensorflow:tensorflow-lite-task-vision:0.1.0'
     implementation 'org.tensorflow:tensorflow-lite-metadata:0.1.0'
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1' // JSON PARSER
 
 }

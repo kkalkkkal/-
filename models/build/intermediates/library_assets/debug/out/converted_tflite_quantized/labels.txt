@@ -1,9 +1,0 @@
-0 Delicious_Milk_GT(500ml)
-1 Seoul_Milk(Low_fat)
-2 Seoul_Milk(500ml)
-3 Seoul_Milk(Coffee)
-4 Seoul_Milk(Chocolate)
-5 Delicious_Milk_GT(Chocolate)
-6 Delicious_Milk_GT(Strawberry)
-7 Delicious_Milk_GT(Coffee)
-8 Coffee_Mochaccino

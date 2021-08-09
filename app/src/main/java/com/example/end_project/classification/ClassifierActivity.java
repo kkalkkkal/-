@@ -24,6 +24,7 @@ import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.util.Size;
 import android.util.TypedValue;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -169,6 +170,16 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     runInBackground(() -> recreateClassifier(model, device, numThreads));
   }
 
+  @Override
+  protected void setUseNNAPI(boolean isChecked) {
+
+  }
+
+  @Override
+  protected void setNumThreads(int numThreads) {
+
+  }
+
   private void recreateClassifier(Model model, Device device, int numThreads) {
     if (classifier != null) {
       LOGGER.d("Closing classifier.");
@@ -200,5 +211,15 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     // Updates the input image size.
     imageSizeX = classifier.getImageSizeX();
     imageSizeY = classifier.getImageSizeY();
+  }
+
+  @Override
+  public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+  }
+
+  @Override
+  public void onPointerCaptureChanged(boolean hasCapture) {
+
   }
 }

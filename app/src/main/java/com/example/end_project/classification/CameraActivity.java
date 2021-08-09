@@ -46,6 +46,7 @@ import android.view.Surface;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.CompoundButton;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -59,6 +60,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.end_project.*;
 import com.example.end_project.classification.env.ImageUtils;
@@ -87,7 +90,8 @@ public abstract class CameraActivity extends AppCompatActivity
     implements OnImageAvailableListener,
         Camera.PreviewCallback,
         View.OnClickListener,
-        AdapterView.OnItemSelectedListener,TextToSpeech.OnInitListener {
+        AdapterView.OnItemSelectedListener,TextToSpeech.OnInitListener,
+        CompoundButton.OnCheckedChangeListener {
   private static final Logger LOGGER = new Logger();
 
   private static final int PERMISSIONS_REQUEST = 1;
@@ -95,6 +99,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
   protected int previewWidth = 0;
   protected int previewHeight = 0;
+  private boolean debug = false;
   private Handler handler;
   private HandlerThread handlerThread;
   private boolean useCamera2API;
@@ -122,6 +127,7 @@ public abstract class CameraActivity extends AppCompatActivity
   private ImageView plusImageView, minusImageView;
   private Spinner modelSpinner;
   private Spinner deviceSpinner;
+  private SwitchCompat apiSwitchCompat;
   private TextView threadsTextView;
 
   private Model model = Model.QUANTIZED_EFFICIENTNET;
@@ -180,6 +186,9 @@ public abstract class CameraActivity extends AppCompatActivity
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     setContentView(R.layout.tfe_ic_activity_camera);
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+    getSupportActionBar().setDisplayShowTitleEnabled(false);
 
     if (hasPermission()) {
       setFragment();
@@ -225,6 +234,7 @@ public abstract class CameraActivity extends AppCompatActivity
     minusImageView = findViewById(R.id.minus);
     modelSpinner = findViewById(R.id.model_spinner);
     deviceSpinner = findViewById(R.id.device_spinner);
+    apiSwitchCompat = findViewById(R.id.api_info_switch); // 스위치
     bottomSheetLayout = findViewById(R.id.bottom_sheet_layout);
     gestureLayout = findViewById(R.id.gesture_layout);
     sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
@@ -289,6 +299,7 @@ public abstract class CameraActivity extends AppCompatActivity
     cameraResolutionTextView = findViewById(R.id.view_info);
     rotationTextView = findViewById(R.id.rotation_info);
     inferenceTimeTextView = findViewById(R.id.inference_info);
+    apiSwitchCompat.setOnCheckedChangeListener(this);
 
     modelSpinner.setOnItemSelectedListener(this);
     deviceSpinner.setOnItemSelectedListener(this);
@@ -659,6 +670,10 @@ public abstract class CameraActivity extends AppCompatActivity
     }
   }
 
+  public boolean isDebug() {
+    return debug;
+  }
+
   protected void readyForNextImage() {
     if (postInferenceCallback != null) {
       postInferenceCallback.run();
@@ -761,13 +776,7 @@ public abstract class CameraActivity extends AppCompatActivity
     return numThreads;
   }
 
-  private void setNumThreads(int numThreads) {
-    if (this.numThreads != numThreads) {
-      LOGGER.d("Updating  numThreads: " + numThreads);
-      this.numThreads = numThreads;
-      onInferenceConfigurationChanged();
-    }
-  }
+
 
   protected abstract void processImage();
 
@@ -778,6 +787,16 @@ public abstract class CameraActivity extends AppCompatActivity
   protected abstract Size getDesiredPreviewFrameSize();
 
   protected abstract void onInferenceConfigurationChanged();
+
+  protected abstract void setUseNNAPI(boolean isChecked);
+  protected abstract void setNumThreads(int numThreads);
+
+  @Override
+  public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+    setUseNNAPI(isChecked);
+    if (isChecked) apiSwitchCompat.setText("NNAPI");
+    else apiSwitchCompat.setText("TFLITE");
+  }
 
   @Override
   public void onClick(View v) {

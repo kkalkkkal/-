@@ -1,6 +1,18 @@
 apply plugin: 'com.android.application'
 apply plugin: 'de.undercouch.download'
 
+plugins {
+  id "org.sonarqube" version "3.3"
+}
+
+sonarqube {
+  properties {
+    property "sonar.projectKey", "kkalkkkal_End-Project"
+    property "sonar.organization", "kkalkkkal"
+    property "sonar.host.url", "https://sonarcloud.io"
+  }
+}
+
 android {
     compileSdkVersion 29
     buildToolsVersion '28.0.3'

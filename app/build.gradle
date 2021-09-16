@@ -1,15 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'de.undercouch.download'
 
-apply plugin: "org.sonarqube"
 
-sonarqube {
-  properties {
-    property "sonar.projectKey", "kkalkkkal_End-Project"
-    property "sonar.organization", "kkalkkkal"
-    property "sonar.host.url", "https://sonarcloud.io"
-  }
-}
 
 android {
     compileSdkVersion 29

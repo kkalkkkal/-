@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - object-detection
+      - object-detection 
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:

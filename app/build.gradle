@@ -45,6 +45,10 @@ android {
     }
 }
 
+//yg
+configurations { compile.exclude group: "junit", module: "junit" }
+//yg
+
 // import DownloadModels task
 project.ext.ASSET_DIR = projectDir.toString() + '/src/main/assets'
 project.ext.TMP_DIR   = project.buildDir.toString() + '/downloads'

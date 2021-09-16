@@ -18,7 +18,7 @@ buildscript {
         // in the individual module build.gradle files
         
         //yg
-         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5"
+         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3"
          //yg
     }
 }

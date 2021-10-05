@@ -4,7 +4,7 @@
 
 mysql의 'milk' database내의 'carton' table의 id(브랜드명)과 product_name(상품명)을
 select.php 에서 받아
-AndroidStudio로 전달하는 방식으로 진행됨
+Android로 전달하는 방식으로 진행됨
 
 "https://1d1cblog.tistory.com/129" 참고
 

@@ -6,6 +6,11 @@ mysql의 'milk' database내의 'carton' table의 id(브랜드명)과 product_nam
 select.php 에서 받아
 Android로 전달하는 방식으로 진행됨
 
+현재 본인의 wifi 서버 IP 주소로 되어있어
+다른 사용자의 휴대전화에서는 사용할 수 없음 ...
+사용자가 사용중인 서버 주소를 불러올 생각
+(Firebase 사용하기로 결정...!)
+
 "https://1d1cblog.tistory.com/129" 참고
 
 현재 test_mysql은

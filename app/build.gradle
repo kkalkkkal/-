@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'de.undercouch.download'
-
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 
 android {
@@ -43,6 +44,9 @@ android {
            dimension "tfliteInference"
        }
     }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 //yg
@@ -70,8 +74,25 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.googlecode.json-simple:json-simple:1.1.1' // JSON PARSER
 
+
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'com.google.truth:truth:1.0.1'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.1.0'
+
+    // Import the Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:28.4.2')
+
+    // Add the dependency for the Firebase SDK for Google Analytics
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation 'com.google.firebase:firebase-analytics'
+    // Declare the dependency for the Realtime Database library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-database'
+
+    // Add the dependencies for any other desired Firebase products
+    // https://firebase.google.com/docs/android/setup#available-libraries
+
+    implementation 'com.google.firebase:firebase-database:20.0.2'
+
 }

@@ -143,9 +143,11 @@ public class YoloV4Classifier implements Classifier {
         if (tfLite != null) tfLite.setNumThreads(num_threads);
     }
 
+    Interpreter.Options tfliteOptions = new Interpreter.Options();
+
     @Override
     public void setUseNNAPI(boolean isChecked) {
-        if (tfLite != null) tfLite.setUseNNAPI(isChecked);
+        if (tfLite != null) tfliteOptions.setUseNNAPI(isChecked);
     }
 
     @Override

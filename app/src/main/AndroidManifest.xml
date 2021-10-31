@@ -17,11 +17,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.ObjectDetection">
-
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/admob_app_id"/>
         <activity
             android:name=".DetectorActivity"
             android:label="@string/tfe_od_app_name"
             android:screenOrientation="portrait">
+
         </activity>
 
         <activity android:name=".MainActivity">

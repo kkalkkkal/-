@@ -16,6 +16,7 @@
 
 package org.tensorflow.lite.examples.detection;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -26,16 +27,40 @@ import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.os.Build;
 import android.os.SystemClock;
+import android.speech.SpeechRecognizer;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
+import org.json.simple.parser.JSONParser;
+
+import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.tensorflow.lite.examples.detection.customview.OverlayView;
 import org.tensorflow.lite.examples.detection.customview.OverlayView.DrawCallback;
 import org.tensorflow.lite.examples.detection.env.BorderedText;
@@ -44,6 +69,11 @@ import org.tensorflow.lite.examples.detection.env.Logger;
 import org.tensorflow.lite.examples.detection.tflite.Classifier;
 import org.tensorflow.lite.examples.detection.tflite.YoloV4Classifier;
 import org.tensorflow.lite.examples.detection.tracking.MultiBoxTracker;
+
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeechService;
+
+import androidx.annotation.RequiresApi;
 
 /**
  * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
@@ -84,6 +114,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private MultiBoxTracker tracker;
 
     private BorderedText borderedText;
+    private int status;
+
 
     @Override
     public void onPreviewSizeChosen(final Size size, final int rotation) {
@@ -155,6 +187,12 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         tracker.setFrameConfiguration(previewWidth, previewHeight, sensorOrientation);
     }
 
+    static int ttsState = 0;
+    public Boolean mutex;
+    static TextToSpeech tts;
+
+
+
     @Override
     protected void processImage() {
         ++timestamp;
@@ -217,6 +255,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
                                 result.setLocation(location);
                                 mappedRecognitions.add(result);
+
+                                StringBuffer response = new StringBuffer();
+                                response = OCRGeneralAPIDemo(cropCopyBitmap);
+                                ExpirationDate(response); // 유통기한 말해주기
+
                             }
                         }
 
@@ -248,6 +291,16 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         return DESIRED_PREVIEW_SIZE;
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
+
     // Which detection model to use: by default uses Tensorflow Object Detection API frozen
     // checkpoints.
     private enum DetectorMode {
@@ -262,5 +315,134 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     @Override
     protected void setNumThreads(final int numThreads) {
         runInBackground(() -> detector.setNumThreads(numThreads));
+    }
+
+
+    public synchronized StringBuffer OCRGeneralAPIDemo(Bitmap bitmap) {
+
+        // API invoke URL
+        String apiURL = "https://cf667635821d4e27a149417a936140aa.apigw.ntruss.com/custom/v1/8069/4ee8c59db77aec20ccac405e431d4e27f0345fe1b12edb62281840e6670452cc/general";
+
+        // API secretKey
+        String secretKey = "Sk16UE5tUFltdlpyVmlCc1hGYlRaaWpUbHNrZWR5cHg=";
+
+        try {
+            URL url = new URL(apiURL);
+            HttpURLConnection con = (HttpURLConnection)url.openConnection();
+            con.setUseCaches(false);
+            con.setDoInput(true);
+            con.setDoOutput(true);
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+            con.setRequestProperty("X-OCR-SECRET", secretKey);
+
+            JSONObject json = new JSONObject();
+            json.put("version", "V2");
+            json.put("requestId", UUID.randomUUID().toString());
+            json.put("timestamp", System.currentTimeMillis());
+            JSONObject image = new JSONObject();
+            image.put("format", "jpg");
+            //image.put("url", "https://kr.object.ncloudstorage.com/ocr-ci-test/sample/1.jpg"); // image should be public, otherwise, should use data
+
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            Resources res= getResources();
+
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+
+            byte[] image2 = outStream.toByteArray();
+            String profileImageBase64 = Base64.encodeToString(image2, 0);
+
+            image.put("data", profileImageBase64); // buffer
+            image.put("name", "demo");
+            JSONArray images = new JSONArray();
+            images.put(image);
+            json.put("images", images);
+            String postParams = json.toString();
+
+            DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+            wr.writeBytes(postParams);
+            wr.flush();
+            wr.close();
+
+            int responseCode = con.getResponseCode();
+            BufferedReader br;
+            if (responseCode == 200) {
+                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            } else {
+                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+            }
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = br.readLine()) != null) {
+                response.append(inputLine);
+            }
+            br.close();
+
+            System.out.println(response);
+
+
+            return response;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public static void copyInputStreamToFile(InputStream inputStream, File file) {
+
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+            int read;
+            byte[] bytes = new byte[1024];
+
+            while ((read = inputStream.read(bytes)) != -1) {
+                outputStream.write(bytes, 0, read);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 유통기한을 TTS로 전환
+    public void ExpirationDate(StringBuffer response) {
+        // stringBuffer를 JsonArray로 바꾸기
+        String day1 = null;
+        try {
+
+            JSONObject jsonObject = new JSONObject(String.valueOf(response));
+            JSONParser jParser = new JSONParser();
+
+            JSONObject jObject1 = (JSONObject)jParser.parse(String.valueOf(jsonObject.get("fields"))); //json 전체 파싱
+            org.json.simple.JSONArray jsonArray = (org.json.simple.JSONArray) jParser.parse(String.valueOf(jObject1));
+
+
+
+            for (int i = 0; i < jsonArray.size(); ++i) {
+                JSONObject jo = (JSONObject)jsonArray.get(i); // 첫번째 list를 꺼낸다
+                String inferText = (String)jo.get("inferText");
+                String confidence = (String) jo.get("inferConfidence");
+                float con_f= Float.parseFloat(confidence);
+
+                if(inferText.contains(".") && con_f >= 0.99)
+                {
+                    String[] arr = inferText.split(".");
+
+                    day1 = String.valueOf(Integer.parseInt(arr[0])) + "월 " + String.valueOf(Integer.parseInt(arr[1])) + "일";
+
+
+                } else if (inferText.contains(":") && con_f >= 0.99) {
+                    String[] arr2 = inferText.split(":");
+
+                    day1 = day1 + String.valueOf(Integer.parseInt(arr2[0])) + "시 " + String.valueOf(Integer.parseInt(arr2[1]));
+
+                }
+            }
+        } catch (ParseException | JSONException e) {
+            e.printStackTrace();
+        }
+
+        speakOut(day1);
+
     }
 }

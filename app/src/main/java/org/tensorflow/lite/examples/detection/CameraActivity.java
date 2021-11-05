@@ -17,9 +17,13 @@
 package org.tensorflow.lite.examples.detection;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -35,27 +39,48 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
+
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.end_project.etc.GetAuth_CAM;
+import com.example.end_project.etc.GetAuth_MIC;
+import com.example.end_project.etc.GetAuth_PHONE;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Locale;
+
 import org.tensorflow.lite.examples.detection.env.ImageUtils;
 import org.tensorflow.lite.examples.detection.env.Logger;
 
@@ -63,7 +88,9 @@ public abstract class CameraActivity extends AppCompatActivity
     implements OnImageAvailableListener,
         Camera.PreviewCallback,
         CompoundButton.OnCheckedChangeListener,
-        View.OnClickListener {
+        View.OnClickListener,
+        AdapterView.OnItemSelectedListener,TextToSpeech.OnInitListener
+{
   private static final Logger LOGGER = new Logger();
 
   private static final int PERMISSIONS_REQUEST = 1;
@@ -92,8 +119,78 @@ public abstract class CameraActivity extends AppCompatActivity
   private SwitchCompat apiSwitchCompat;
   private TextView threadsTextView;
 
+  private Button button1;
+  private Button button2;
+
   // 광고 화면
   private AdView mAdView;
+
+  //SST
+  private Intent recognizerIntent;
+  private final int RESULT_SPEECH = 1000;
+  final int PERMISSION = 1;
+  private SpeechRecognizer speech;
+  private TextView textView;
+  private Button sttbtn, ttsbtn;
+
+  // TTS
+  static public TextToSpeech tts;
+  private EditText ttsText;
+  private int status;
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {     //sst에서 음성 인식 결과를 text로 화면에 출력
+    super.onActivityResult(requestCode, resultCode, data);
+
+    switch (requestCode) {
+      case RESULT_SPEECH : {
+        if (resultCode == RESULT_OK && null != data) {
+          ArrayList<String> text = data
+                  .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+          for(int i = 0; i < text.size() ; i++){
+            textView.setText(text.get(i));
+            // Todo 종료 STT
+            if(text.get(i).contains("꺼") || text.get(i).contains("종료"))
+            {
+              new AlertDialog.Builder(CameraActivity.this)
+                      .setTitle("Application 종료")
+                      .setMessage("애플리케이션을 종료하시겠습니까?")
+                      .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                          Toast.makeText(CameraActivity.this, "애플리케이션이 종료되었습니다.", Toast.LENGTH_SHORT).show();
+                          finish();
+                        }
+                      })
+
+                      .setNegativeButton("NO", null)
+                      //"NO"를 사용자가 클릭했을 때에는 null. 즉 아무 작업도 수행하지 않고 다시 main화면으로 돌아가게 됩니다.
+                      .setIcon(android.R.drawable.ic_dialog_alert)
+                      //Icon은 기존 제공하는 이미지를 사용
+                      .show();
+
+            }
+            // Todo 도움말 관련 STT
+            /*if(text.get(i).contains("도움말") || text.get(i).contains("가이드라인")) // 도움말 & 가이드라인 이란 키워드에 반응함.
+            {
+              try {
+                //Information(); // 도움말
+              } catch (FileNotFoundException e) {
+                e.printStackTrace();
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+            }*/
+          }
+          for(int i = 0; i < text.size() ; i++){
+            Log.e("MainActivity", "onActivityResult text : " + text.get(i));
+          }
+        }
+
+        break;
+      }
+    }
+  }
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -112,6 +209,22 @@ public abstract class CameraActivity extends AppCompatActivity
       requestPermission();
     }
 
+    // 권한 확인
+    GetAuth_CAM getAuth_cam = new GetAuth_CAM();
+    GetAuth_MIC getAuth_mic = new GetAuth_MIC();
+    GetAuth_PHONE getAuth_phone = new GetAuth_PHONE();
+
+
+    // 카메라 확인
+    if (getAuth_cam.Request_Camera_Permission(this, this)){
+      setFragment();
+    }
+    // 마이크 확인
+    getAuth_mic.Request_MIC_Permission(this, this);
+    // 스피커 확인
+    getAuth_phone.Request_Phone_Permission(this, this);
+
+
     threadsTextView = findViewById(R.id.threads);
     plusImageView = findViewById(R.id.plus);
     minusImageView = findViewById(R.id.minus);
@@ -121,6 +234,25 @@ public abstract class CameraActivity extends AppCompatActivity
     sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
     bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
 
+
+    button1 = findViewById(R.id.button1);
+    button2 = findViewById(R.id.button2);
+
+    tts = new TextToSpeech(this, (TextToSpeech.OnInitListener) this);
+
+    //SST 버튼 리스너
+    sttbtn = findViewById(R.id.button1);
+    findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "ko-KR"); //언어지정입니다.
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getPackageName());
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);   //검색을 말한 결과를 보여주는 갯수
+        startActivityForResult(recognizerIntent, RESULT_SPEECH);
+      }
+    });
 
 
     // 광고 추가
@@ -313,6 +445,76 @@ public abstract class CameraActivity extends AppCompatActivity
     Trace.endSection();
   }
 
+  // 구글 TTS api
+  //@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  public void Information() throws IOException {    //tts speakout 함수 : 입력된 텍스트를 음성으로 출력하는 함수
+    AssetManager am = getResources().getAssets() ;
+    InputStream is = null ;
+    byte buf[] = new byte[1024] ;
+    String str = "" ;
+
+    try {
+      is = am.open("raw/inform.txt") ;
+      BufferedReader bufrd = new BufferedReader(new InputStreamReader(is)) ;
+      str = bufrd.readLine();
+
+      bufrd.close() ;
+      is.close() ;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    if (is != null) {
+      try {
+        is.close() ;
+      } catch (Exception e) {
+        e.printStackTrace() ;
+      }
+    }
+
+
+    CharSequence text = str;//ttsText.getText(); // 여기에 원하는 것
+    tts.setPitch((float) 0.6);
+    tts.setSpeechRate((float) 1.5);
+    tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "id1");
+  }
+
+
+
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+  public void onInit(int status) {
+    this.status = status;        //tts 수행 성공시 초기화 정보
+    if (status == TextToSpeech.SUCCESS) {
+      int result = tts.setLanguage(Locale.KOREA);
+      if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+        Log.e("TTS", "This Language is not supported");
+      } else {
+        //ttsbtn.setEnabled(true);
+        /*try {
+          Information();
+        } catch (FileNotFoundException e) {
+          e.printStackTrace();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }*/
+      }
+    } else {
+      Log.e("TTS", "initalization Failed");
+    }
+  }
+
+  @RequiresApi(api=Build.VERSION_CODES.LOLLIPOP)
+  public void speakOut(String str){    //tts speakout 함수 : 입력된 텍스트를 음성으로 출력하는 함수
+
+    if (tts.isSpeaking()) {} else {
+      CharSequence text = str;//ttsText.getText();
+      tts.setPitch((float) 0.6);
+      tts.setSpeechRate((float) 1);
+      tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "id1");
+    }
+  }
+
+
   @Override
   public synchronized void onStart() {
     LOGGER.d("onStart " + this);
@@ -347,12 +549,17 @@ public abstract class CameraActivity extends AppCompatActivity
 
   @Override
   public synchronized void onStop() {
+
     LOGGER.d("onStop " + this);
     super.onStop();
   }
 
   @Override
   public synchronized void onDestroy() {
+    if (tts != null) {
+      tts.stop();
+      tts.shutdown();
+    }
     LOGGER.d("onDestroy " + this);
     super.onDestroy();
   }

@@ -89,4 +89,7 @@ dependencies {
     // https://firebase.google.com/docs/android/setup#available-libraries
 
     implementation 'com.google.firebase:firebase-database:20.0.2'
+
+    //Java to python command
+    implementation 'org.apache.commons:commons-exec:1.3'
 }

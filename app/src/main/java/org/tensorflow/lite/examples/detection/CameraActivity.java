@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.hardware.Camera;
+import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
@@ -125,6 +126,8 @@ public abstract class CameraActivity extends AppCompatActivity
   // 광고 화면
   private AdView mAdView;
 
+  private Camera mCamera;
+
   //SST
   private Intent recognizerIntent;
   private final int RESULT_SPEECH = 1000;
@@ -148,7 +151,7 @@ public abstract class CameraActivity extends AppCompatActivity
           ArrayList<String> text = data
                   .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
           for(int i = 0; i < text.size() ; i++){
-            textView.setText(text.get(i));
+            //textView.setText(text.get(i));
             // Todo 종료 STT
             if(text.get(i).contains("꺼") || text.get(i).contains("종료"))
             {
@@ -191,7 +194,19 @@ public abstract class CameraActivity extends AppCompatActivity
       }
     }
   }
-
+  
+  //카메라 인스턴스 가져오기
+  public static Camera getCameraInstance(){
+    Camera c = null;
+    try {
+      c = Camera.open(); // attempt to get a Camera instance
+    }
+    catch (Exception e){
+      // Camera is not available (in use or does not exist)
+    }
+    return c; // returns null if camera is unavailable
+  };
+  
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
@@ -253,6 +268,27 @@ public abstract class CameraActivity extends AppCompatActivity
         startActivityForResult(recognizerIntent, RESULT_SPEECH);
       }
     });
+    //카메라 재성정
+    button2 = findViewById(R.id.button2);
+    findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        mCamera = getCameraInstance();
+        mCamera.autoFocus (new Camera.AutoFocusCallback() {
+          public void onAutoFocus(boolean success, Camera camera) {
+            if(success){
+              Toast.makeText(getApplicationContext(),"Auto Focus Success",Toast.LENGTH_SHORT).show();
+            }
+            else{
+              Toast.makeText(getApplicationContext(),"Auto Focus Failed",Toast.LENGTH_SHORT).show();
+            }
+          }
+        });
+      }
+    });
+
+
 
 
     // 광고 추가

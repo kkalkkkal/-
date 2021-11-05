@@ -75,6 +75,11 @@ import android.speech.tts.TextToSpeechService;
 
 import androidx.annotation.RequiresApi;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.PumpStreamHandler;
+
+
 /**
  * An activity that uses a TensorFlowMultiBoxDetector and ObjectTracker to detect and then track
  * objects.
@@ -89,7 +94,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private static final String TF_OD_API_LABELS_FILE = "labels_v3.txt";
 
     private static final DetectorMode MODE = DetectorMode.TF_OD_API;
-    private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
+    private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.95f;
     private static final boolean MAINTAIN_ASPECT = false;
     private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
     private static final boolean SAVE_PREVIEW_BITMAP = false;
@@ -191,6 +196,24 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     public Boolean mutex;
     static TextToSpeech tts;
 
+    public Bitmap cropBitmap(Bitmap bitmap, float width, float height, float x, float y) {
+        float originWidth = bitmap.getWidth();
+        float originHeight = bitmap.getHeight();
+
+        // 이미지를 crop 할 좌상단 좌표 ( x : left, y : top )
+
+
+       // if (originWidth > width) { // 이미지의 가로가 view 의 가로보다 크면..
+       //     x = (float) ((originWidth - width)/2.0);
+       // }
+
+//        if (originHeight > height) { // 이미지의 세로가 view 의 세로보다 크면..
+ //           y = (float) ((originHeight - height)/2.0);
+   //     }
+
+        Bitmap cropedBitmap = Bitmap.createBitmap(bitmap, (int)x, (int)y, (int)width, (int)height);
+        return cropedBitmap;
+    }
 
 
     @Override
@@ -217,6 +240,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         if (SAVE_PREVIEW_BITMAP) {
             ImageUtils.saveBitmap(croppedBitmap);
         }
+
+        Matrix matrix_90 = new Matrix(); // 비트맵 90도 회전용
+        matrix_90.postRotate(90);
 
         runInBackground(
                 new Runnable() {
@@ -246,6 +272,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                         final List<Classifier.Recognition> mappedRecognitions =
                                 new LinkedList<Classifier.Recognition>();
 
+
                         for (final Classifier.Recognition result : results) {
                             final RectF location = result.getLocation();
                             if (location != null && result.getConfidence() >= minimumConfidence) {
@@ -256,10 +283,31 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                 result.setLocation(location);
                                 mappedRecognitions.add(result);
 
-                                StringBuffer response = new StringBuffer();
-                                response = OCRGeneralAPIDemo(cropCopyBitmap);
-                                ExpirationDate(response); // 유통기한 말해주기
+                                /*if(result.getTitle().contains("month") || result.getTitle().contains("day"))
+                                {
+                                    StringBuffer response = new StringBuffer();
+                                    response = OCRGeneralAPIDemo(cropCopyBitmap);
+                                    ExpirationDate(response); // 유통기한 말해주기
+                                    String[] command = new String[4];
+                                    command[0] = "python";
+                                    //command[1] = "\\workspace\\java-call-python\\src\\main\\resources\\test.py";
+                                    command[1] = "/Users/ykkim/workspace/java-call-python/src/main/resources/test.py";
+                                    command[2] = "10";
+                                    command[3] = "20";
+                                    execPython(command)
+                                } else */if(result.getTitle().contains("ExpirationDate"))
+                                {
+                                    StringBuffer response = new StringBuffer();
 
+
+                                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(cropBitmap(rgbFrameBitmap,location.right - location.left, location.bottom - location.top, location.left, location.top),
+                                            (int) (location.right - location.left), (int) (location.bottom - location.top), true);
+
+                                    Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix_90, true);
+
+                                    response = OCRGeneralAPIDemo(rotatedBitmap);
+                                    ExpirationDate(response); // 유통기한 말해주기
+                                }
                             }
                         }
 
@@ -413,8 +461,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             JSONObject jsonObject = new JSONObject(String.valueOf(response));
             JSONParser jParser = new JSONParser();
 
-            JSONObject jObject1 = (JSONObject)jParser.parse(String.valueOf(jsonObject.get("fields"))); //json 전체 파싱
-            org.json.simple.JSONArray jsonArray = (org.json.simple.JSONArray) jParser.parse(String.valueOf(jObject1));
+            JSONObject jObject1 = (JSONObject)jParser.parse(String.valueOf(jsonObject.get("images"))); //json 전체 파싱 (error)
+            org.json.simple.JSONArray jsonArray = (org.json.simple.JSONArray) jParser.parse(String.valueOf(jObject1)); // 전체 파싱할때 뒷부분이 잘려있어 에러 발생
 
 
 
@@ -424,25 +472,44 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 String confidence = (String) jo.get("inferConfidence");
                 float con_f= Float.parseFloat(confidence);
 
-                if(inferText.contains(".") && con_f >= 0.99)
+                if(inferText.contains(".") && con_f >= 0.9)
                 {
                     String[] arr = inferText.split(".");
 
-                    day1 = String.valueOf(Integer.parseInt(arr[0])) + "월 " + String.valueOf(Integer.parseInt(arr[1])) + "일";
+                    day1 = String.valueOf(Integer.parseInt(arr[0])) + "월 " + String.valueOf(Integer.parseInt(arr[1])) + "일" +"까지입니다.";
 
 
-                } else if (inferText.contains(":") && con_f >= 0.99) {
+                } else if (inferText.contains(":") && con_f >= 0.9) {
                     String[] arr2 = inferText.split(":");
 
                     day1 = day1 + String.valueOf(Integer.parseInt(arr2[0])) + "시 " + String.valueOf(Integer.parseInt(arr2[1]));
 
                 }
             }
+
+            speakOut(day1);
+
         } catch (ParseException | JSONException e) {
             e.printStackTrace();
         }
 
-        speakOut(day1);
+
+
+    }
+
+    public static void execPython(String[] command) throws IOException, InterruptedException {
+        CommandLine commandLine = CommandLine.parse(command[0]);
+        for (int i = 1, n = command.length; i < n; i++) {
+            commandLine.addArgument(command[i]);
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PumpStreamHandler pumpStreamHandler = new PumpStreamHandler(outputStream);
+        DefaultExecutor executor = new DefaultExecutor();
+        executor.setStreamHandler(pumpStreamHandler);
+        int result = executor.execute(commandLine);
+        System.out.println("result: " + result);
+        System.out.println("output: " + outputStream.toString());
 
     }
 }

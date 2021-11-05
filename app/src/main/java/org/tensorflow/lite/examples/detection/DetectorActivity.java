@@ -56,7 +56,6 @@ import java.util.Locale;
 import java.util.UUID;
 
 import org.json.simple.parser.JSONParser;
-
 import org.json.simple.parser.ParseException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -74,6 +73,8 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeechService;
 
 import androidx.annotation.RequiresApi;
+
+import com.google.gson.JsonObject;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -120,6 +121,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
     private BorderedText borderedText;
     private int status;
+
+    private int count = 0;
 
 
     @Override
@@ -244,6 +247,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         Matrix matrix_90 = new Matrix(); // 비트맵 90도 회전용
         matrix_90.postRotate(90);
 
+
+
         runInBackground(
                 new Runnable() {
                     @Override
@@ -306,6 +311,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                     Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix_90, true);
 
                                     response = OCRGeneralAPIDemo(rotatedBitmap);
+                                    System.out.println(++count);
                                     ExpirationDate(response); // 유통기한 말해주기
                                 }
                             }
@@ -458,25 +464,26 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         String day1 = null;
         try {
 
-            JSONObject jsonObject = new JSONObject(String.valueOf(response));
+            org.json.JSONObject jsonObject = new JSONObject(String.valueOf(response));
             JSONParser jParser = new JSONParser();
 
-            JSONObject jObject1 = (JSONObject)jParser.parse(String.valueOf(jsonObject.get("images"))); //json 전체 파싱 (error)
-            org.json.simple.JSONArray jsonArray = (org.json.simple.JSONArray) jParser.parse(String.valueOf(jObject1)); // 전체 파싱할때 뒷부분이 잘려있어 에러 발생
+            org.json.simple.JSONArray jsonArray = (org.json.simple.JSONArray)  jParser.parse(String.valueOf(jsonObject.get("images")));
+
+            org.json.simple.JSONObject jsonObject1 = (org.json.simple.JSONObject) jParser.parse(String.valueOf(jsonArray.get(0)));
+
+            org.json.simple.JSONArray jsonArray2 = (org.json.simple.JSONArray)  jParser.parse(String.valueOf(jsonObject1.get("fields")));
 
 
+            for (int i = 0; i < jsonArray2.size(); ++i) {
+                org.json.simple.JSONObject jo = (org.json.simple.JSONObject) jsonArray2.get(i); // 첫번째 list를 꺼낸다
+                String inferText = String.valueOf(jo.get("inferText"));
+                String confidence = String.valueOf(jo.get("inferConfidence"));
+                float con_f = Float.parseFloat(confidence);
 
-            for (int i = 0; i < jsonArray.size(); ++i) {
-                JSONObject jo = (JSONObject)jsonArray.get(i); // 첫번째 list를 꺼낸다
-                String inferText = (String)jo.get("inferText");
-                String confidence = (String) jo.get("inferConfidence");
-                float con_f= Float.parseFloat(confidence);
+                if (inferText.contains(".") && con_f >= 0.9) {
+                    String[] arr = inferText.split("\\.", -1);
 
-                if(inferText.contains(".") && con_f >= 0.9)
-                {
-                    String[] arr = inferText.split(".");
-
-                    day1 = String.valueOf(Integer.parseInt(arr[0])) + "월 " + String.valueOf(Integer.parseInt(arr[1])) + "일" +"까지입니다.";
+                    day1 = String.valueOf(Integer.parseInt(arr[0])) + "월 " + String.valueOf(Integer.parseInt(arr[1])) + "일" + "까지입니다.";
 
 
                 } else if (inferText.contains(":") && con_f >= 0.9) {
@@ -488,6 +495,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             }
 
             speakOut(day1);
+
 
         } catch (ParseException | JSONException e) {
             e.printStackTrace();

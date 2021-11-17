@@ -270,10 +270,15 @@ public abstract class CameraActivity extends AppCompatActivity
     });
     //카메라 재성정
     button2 = findViewById(R.id.button2);
+    DetectorActivity detectorActivity = new DetectorActivity();
+
     findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
 
       @Override
       public void onClick(View v) {
+
+        detectorActivity.setCount(0);
+        /*
         mCamera = getCameraInstance();
         mCamera.autoFocus (new Camera.AutoFocusCallback() {
           public void onAutoFocus(boolean success, Camera camera) {
@@ -284,7 +289,7 @@ public abstract class CameraActivity extends AppCompatActivity
               Toast.makeText(getApplicationContext(),"Auto Focus Failed",Toast.LENGTH_SHORT).show();
             }
           }
-        });
+        });*/
       }
     });
 

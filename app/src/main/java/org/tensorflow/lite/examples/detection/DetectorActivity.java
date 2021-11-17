@@ -122,7 +122,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private BorderedText borderedText;
     private int status;
 
-    private int count = 0;
+    private static int count = 0;
+
 
 
     @Override
@@ -300,8 +301,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                     command[2] = "10";
                                     command[3] = "20";
                                     execPython(command)
-                                } else */if(result.getTitle().contains("ExpirationDate"))
+                                } else */if(result.getTitle().contains("ExpirationDate") && count == 0)
                                 {
+                                    count = 1;
                                     StringBuffer response = new StringBuffer();
 
 
@@ -311,7 +313,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                     Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix_90, true);
 
                                     response = OCRGeneralAPIDemo(rotatedBitmap);
-                                    System.out.println(++count);
+                                    System.out.println(count);
                                     ExpirationDate(response); // 유통기한 말해주기
                                 }
                             }
@@ -458,6 +460,10 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         }
     }
 
+    public static void setCount(int count) {
+        DetectorActivity.count = count;
+    }
+
     // 유통기한을 TTS로 전환
     public void ExpirationDate(StringBuffer response) {
         // stringBuffer를 JsonArray로 바꾸기
@@ -473,6 +479,11 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
             org.json.simple.JSONArray jsonArray2 = (org.json.simple.JSONArray)  jParser.parse(String.valueOf(jsonObject1.get("fields")));
 
+            int month, day, time, min;
+            month =0;
+            day = 0;
+            time = 0;
+            min = 0;
 
             for (int i = 0; i < jsonArray2.size(); ++i) {
                 org.json.simple.JSONObject jo = (org.json.simple.JSONObject) jsonArray2.get(i); // 첫번째 list를 꺼낸다
@@ -480,21 +491,41 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                 String confidence = String.valueOf(jo.get("inferConfidence"));
                 float con_f = Float.parseFloat(confidence);
 
+
+
                 if (inferText.contains(".") && con_f >= 0.9) {
                     String[] arr = inferText.split("\\.", -1);
 
-                    day1 = String.valueOf(Integer.parseInt(arr[0])) + "월 " + String.valueOf(Integer.parseInt(arr[1])) + "일" + "까지입니다.";
+                    if(Integer.parseInt(arr[0]) > month)
+                        month = Integer.parseInt(arr[0]);
+
+                    if(Integer.parseInt(arr[1]) > day)
+                        day = Integer.parseInt(arr[1]);
+
 
 
                 } else if (inferText.contains(":") && con_f >= 0.9) {
                     String[] arr2 = inferText.split(":");
 
-                    day1 = day1 + String.valueOf(Integer.parseInt(arr2[0])) + "시 " + String.valueOf(Integer.parseInt(arr2[1]));
+                    if(Integer.parseInt(arr2[0]) > time)
+                        time = Integer.parseInt(arr2[0]);
+
+                    if(Integer.parseInt(arr2[1]) > min)
+                        min = Integer.parseInt(arr2[1]);
+                    //day1 = day1 + String.valueOf() + "시 " + String.valueOf(Integer.parseInt(arr2[1])) + "분";
 
                 }
             }
+            day1 = String.valueOf(month) + "월 " + String.valueOf(day) + "일";
+
+            if(time > 0 && min >0)
+                day1 = day1 + String.valueOf(time) + "시" + String.valueOf(min) + "분";
+
+            day1 = day1 + "까지입니다.";
 
             speakOut(day1);
+            //ttsState = 0;
+            count = 1;
 
 
         } catch (ParseException | JSONException e) {
@@ -520,4 +551,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         System.out.println("output: " + outputStream.toString());
 
     }
+
+
 }

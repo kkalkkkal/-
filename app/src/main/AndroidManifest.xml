@@ -23,13 +23,13 @@
             android:value="@string/admob_app_id"/>
         <activity
             android:name=".DetectorActivity"
-            android:screenOrientation="fullSensor">
+            android:screenOrientation="portrait">
 
         </activity>
         <activity
             android:name=".StartActivity"
             android:label="@string/tfe_od_app_name"
-            android:screenOrientation="fullSensor"
+            android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

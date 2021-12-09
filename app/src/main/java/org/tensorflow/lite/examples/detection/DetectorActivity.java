@@ -27,9 +27,7 @@ import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
-import android.os.Build;
 import android.os.SystemClock;
-import android.speech.SpeechRecognizer;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Size;
@@ -44,15 +42,14 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 import org.json.simple.parser.JSONParser;
@@ -70,11 +67,8 @@ import org.tensorflow.lite.examples.detection.tflite.YoloV4Classifier;
 import org.tensorflow.lite.examples.detection.tracking.MultiBoxTracker;
 
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.TextToSpeechService;
 
-import androidx.annotation.RequiresApi;
-
-import com.google.gson.JsonObject;
+import androidx.annotation.StringRes;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -373,7 +367,101 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         runInBackground(() -> detector.setNumThreads(numThreads));
     }
 
+    // Todo : API GET
+    public void get(String strUrl) {
+        try {
+            URL url = new URL(strUrl);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setConnectTimeout(5000); //서버에 연결되는 Timeout 시간 설정
+            con.setReadTimeout(5000); // InputStream 읽어 오는 Timeout 시간 설정
+            con.addRequestProperty("x-api-key", String.valueOf(R.string.EasyOCR_KEY)); //key값 설정
 
+            con.setRequestMethod("GET");
+
+
+
+            //URLConnection에 대한 doOutput 필드값을 지정된 값으로 설정한다. URL 연결은 입출력에 사용될 수 있다.
+            // URL 연결을 출력용으로 사용하려는 경우 DoOutput 플래그를 true로 설정하고, 그렇지 않은 경우는 false로 설정해야 한다. 기본값은 false이다.
+
+            con.setDoOutput(false);
+
+            StringBuilder sb = new StringBuilder();
+            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                //Stream을 처리해줘야 하는 귀찮음이 있음.
+                BufferedReader br = new BufferedReader(
+                        new InputStreamReader(con.getInputStream(), "utf-8"));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line).append("\n");
+                }
+                br.close();
+                System.out.println("" + sb.toString());
+            } else {
+                System.out.println(con.getResponseMessage());
+            }
+
+        } catch (Exception e) {
+            System.err.println(e.toString());
+        }
+    }
+
+
+    public void post(String strUrl, String jsonMessage){
+        try {
+            URL url = new URL(strUrl);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setConnectTimeout(5000); //서버에 연결되는 Timeout 시간 설정
+            con.setReadTimeout(5000); // InputStream 읽어 오는 Timeout 시간 설정
+            con.addRequestProperty("x-api-key", String.valueOf(R.string.EasyOCR_KEY)); //key값 설정
+
+            con.setRequestMethod("POST");
+
+            //json으로 message를 전달하고자 할 때
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setDoInput(true);
+            con.setDoOutput(true); //POST 데이터를 OutputStream으로 넘겨 주겠다는 설정
+            con.setUseCaches(false);
+            con.setDefaultUseCaches(false);
+
+            OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream());
+            wr.write(jsonMessage); //json 형식의 message 전달
+            wr.flush();
+
+            StringBuilder sb = new StringBuilder();
+            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                //Stream을 처리해줘야 하는 귀찮음이 있음.
+                BufferedReader br = new BufferedReader(
+                        new InputStreamReader(con.getInputStream(), "utf-8"));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line).append("\n");
+                }
+                br.close();
+                System.out.println("" + sb.toString());
+            } else {
+                System.out.println(con.getResponseMessage());
+            }
+        } catch (Exception e){
+            System.err.println(e.toString());
+        }
+    }
+
+
+
+    // Todo : EasyOCR call
+    public synchronized StringBuffer EasyOCRAPI(Bitmap bitmap){
+        StringBuffer response = null;
+
+        String strUrl;
+        String jsonMessage;
+
+
+        //post(url,json);
+
+        return response;
+    }
+
+    // Naver OCR
     public synchronized StringBuffer OCRGeneralAPIDemo(Bitmap bitmap) {
 
         // API invoke URL

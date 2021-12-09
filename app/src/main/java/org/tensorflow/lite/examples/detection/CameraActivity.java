@@ -172,18 +172,20 @@ public abstract class CameraActivity extends AppCompatActivity
                       //Icon은 기존 제공하는 이미지를 사용
                       .show();
 
+            } else {
+
             }
             // Todo 도움말 관련 STT
-            /*if(text.get(i).contains("도움말") || text.get(i).contains("가이드라인")) // 도움말 & 가이드라인 이란 키워드에 반응함.
+            if(text.get(i).contains("도움말") || text.get(i).contains("가이드라인")) // 도움말 & 가이드라인 이란 키워드에 반응함.
             {
-              try {
-                //Information(); // 도움말
-              } catch (FileNotFoundException e) {
-                e.printStackTrace();
-              } catch (IOException e) {
-                e.printStackTrace();
-              }
-            }*/
+              Intent intent = new Intent(this, StartActivity.class);
+              startActivity(intent);
+
+              finish();
+
+
+              //Information(); // 도움말
+            }
           }
           for(int i = 0; i < text.size() ; i++){
             Log.e("MainActivity", "onActivityResult text : " + text.get(i));

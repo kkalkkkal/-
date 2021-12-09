@@ -283,6 +283,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                 result.setLocation(location);
                                 mappedRecognitions.add(result);
 
+                                // Todo : month, day 구분해서  api 호출하기
+
                                 /*if(result.getTitle().contains("month") || result.getTitle().contains("day"))
                                 {
                                     StringBuffer response = new StringBuffer();
@@ -300,10 +302,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                     count = 1;
                                     StringBuffer response = new StringBuffer();
 
-
                                     Bitmap scaledBitmap = Bitmap.createScaledBitmap(cropBitmap(rgbFrameBitmap,location.right - location.left, location.bottom - location.top, location.left, location.top),
                                             (int) (location.right - location.left), (int) (location.bottom - location.top), true);
-
+                                    // 비트맵이 누워져있어서 회전시켜야함.
                                     Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix_90, true);
 
                                     response = OCRGeneralAPIDemo(rotatedBitmap);

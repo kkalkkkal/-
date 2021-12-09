@@ -374,7 +374,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setConnectTimeout(5000); //서버에 연결되는 Timeout 시간 설정
             con.setReadTimeout(5000); // InputStream 읽어 오는 Timeout 시간 설정
-            con.addRequestProperty("x-api-key", String.valueOf(R.string.EasyOCR_KEY)); //key값 설정
+            //con.addRequestProperty("x-api-key", String.valueOf(R.string.EasyOCR_KEY)); //key값 설정
 
             con.setRequestMethod("GET");
 
@@ -412,7 +412,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setConnectTimeout(5000); //서버에 연결되는 Timeout 시간 설정
             con.setReadTimeout(5000); // InputStream 읽어 오는 Timeout 시간 설정
-            con.addRequestProperty("x-api-key", String.valueOf(R.string.EasyOCR_KEY)); //key값 설정
+            //con.addRequestProperty("x-api-key", String.valueOf(R.string.EasyOCR_KEY)); //key값 설정
 
             con.setRequestMethod("POST");
 

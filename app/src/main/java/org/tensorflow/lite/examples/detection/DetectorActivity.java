@@ -122,7 +122,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private BorderedText borderedText;
     private int status;
 
-    private static int count = 0;
+    private static int count = 1;
 
 
 

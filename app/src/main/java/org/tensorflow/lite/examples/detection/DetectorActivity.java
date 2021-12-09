@@ -285,18 +285,21 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
                                 // Todo : month, day 구분해서  api 호출하기
 
-                                /*if(result.getTitle().contains("month") || result.getTitle().contains("day"))
+                                /*if((result.getTitle().contains("month") || result.getTitle().contains("day") || result.getTitle().contains("time")) && count == 0 )
                                 {
+                                    count = 1;
                                     StringBuffer response = new StringBuffer();
-                                    response = OCRGeneralAPIDemo(cropCopyBitmap);
+
+                                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(cropBitmap(rgbFrameBitmap,location.right - location.left, location.bottom - location.top, location.left, location.top),
+                                            (int) (location.right - location.left), (int) (location.bottom - location.top), true);
+                                    // 비트맵이 누워져있어서 회전시켜야함.
+                                    Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix_90, true);
+
+                                    response = EasyOCRAPI(rotatedBitmap, result.getTitle());
+                                    System.out.println(count);
                                     ExpirationDate(response); // 유통기한 말해주기
-                                    String[] command = new String[4];
-                                    command[0] = "python";
-                                    //command[1] = "\\workspace\\java-call-python\\src\\main\\resources\\test.py";
-                                    command[1] = "/Users/ykkim/workspace/java-call-python/src/main/resources/test.py";
-                                    command[2] = "10";
-                                    command[3] = "20";
-                                    execPython(command)
+
+
                                 } else */if(result.getTitle().contains("ExpirationDate") && count == 0)
                                 {
                                     count = 1;
@@ -407,7 +410,9 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     }
 
 
-    public void post(String strUrl, String jsonMessage){
+    public StringBuffer post(String strUrl, String jsonMessage){
+        StringBuffer response = new StringBuffer();
+
         try {
             URL url = new URL(strUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -429,40 +434,89 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
             wr.flush();
 
             StringBuilder sb = new StringBuilder();
+
+            // 호출에 대한 응답을 받음.
             if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                //Stream을 처리해줘야 하는 귀찮음이 있음.
+
                 BufferedReader br = new BufferedReader(
                         new InputStreamReader(con.getInputStream(), "utf-8"));
-                String line;
+                String line; // inputLine
                 while ((line = br.readLine()) != null) {
-                    sb.append(line).append("\n");
+                    response.append(line);//sb.append(line).append("\n");
                 }
                 br.close();
-                System.out.println("" + sb.toString());
+                System.out.println(response);
+                return response;
+                //System.out.println("" + sb.toString());
             } else {
                 System.out.println(con.getResponseMessage());
             }
         } catch (Exception e){
             System.err.println(e.toString());
         }
+        return response;
     }
 
 
 
     // Todo : EasyOCR call
-    public synchronized StringBuffer EasyOCRAPI(Bitmap bitmap){
-        StringBuffer response = null;
+    public synchronized StringBuffer EasyOCRAPI(Bitmap bitmap, String result_title) throws JSONException {
+        StringBuffer response = new StringBuffer();
 
-        String strUrl;
+        String strUrl = "127.0.0.1/:80";
         String jsonMessage;
 
+        /*
+        * json 구조
+        * 1. result_title : 이게 어떤 영역을 자른 이미지인지 (month, day, time)
+        * 2. timestamp : 호출 시간
+        * 3. image : 보내는 이미지
+        *   3-1. format : 보내는 이미지의 확장자
+        *   3-2. data : 이미지 데이터
+        *   3-3 name : 이미지 이름
+        *
+        * */
 
-        //post(url,json);
+        // host - json 만들기
+        JSONObject json = new JSONObject();
+        json.put("", "V2");
+        //json.put("requestId", UUID.randomUUID().toString());
+        json.put("timestamp", System.currentTimeMillis());
+
+        // image - json
+        JSONObject image = new JSONObject();
+
+        // bitmap - jpeg 전환
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Resources res= getResources();
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+        byte[] image2 = outStream.toByteArray();
+        String profileImageBase64 = Base64.encodeToString(image2, 0);
+        // 전환 끝
+
+        image.put("format", "jpg");
+        image.put("data", profileImageBase64); // buffer
+
+        String name = result_title+"_"+Long.toString(timestamp);
+        image.put("name",name);
+
+        jsonMessage = json.toString();
+
+        response = post(strUrl, jsonMessage);
+
+        /* response json 구조
+        * 1. confidence_score : 결과가 나온 판단 확률
+        * 2. pred : 판단 결과
+        * 3. time : 회신 시각
+        * 4. img_name : 이미지 명
+        * */
+
 
         return response;
     }
 
-    // Naver OCR
+    // *** Naver OCR
     public synchronized StringBuffer OCRGeneralAPIDemo(Bitmap bitmap) {
 
         // API invoke URL

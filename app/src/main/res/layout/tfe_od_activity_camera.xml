@@ -31,7 +31,6 @@
             android:id="@+id/relativeLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#BFFFFFFF"
             android:orientation="vertical">
 
 
@@ -71,6 +70,7 @@
         android:layout_gravity="bottom"
         android:foregroundGravity="bottom"
         android:gravity="bottom|center|end"
+        android:background="@color/tfe_color_primary"
         android:orientation="horizontal">
 
         <FrameLayout

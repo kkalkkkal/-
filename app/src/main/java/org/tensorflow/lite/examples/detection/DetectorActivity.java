@@ -46,8 +46,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -89,7 +91,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
     private static final String TF_OD_API_LABELS_FILE = "labels_v3.txt";
 
     private static final DetectorMode MODE = DetectorMode.TF_OD_API;
-    private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.7f;
+    private static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.5f;
     private static final boolean MAINTAIN_ASPECT = false;
     private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
     private static final boolean SAVE_PREVIEW_BITMAP = false;
@@ -242,7 +244,8 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         Matrix matrix_90 = new Matrix(); // 비트맵 90도 회전용
         matrix_90.postRotate(90);
 
-
+        ArrayList<Bitmap> bmp_images = new ArrayList<Bitmap>();
+        ArrayList<String> bmp_names = new ArrayList<String>();
 
         runInBackground(
                 new Runnable() {
@@ -285,7 +288,7 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
                                 // Todo : month, day 구분해서  api 호출하기
 
-                                /*if((result.getTitle().contains("month") || result.getTitle().contains("day") || result.getTitle().contains("time")) && count == 0 )
+                                if((result.getTitle().contains("month") || result.getTitle().contains("day") || result.getTitle().contains("time")) && count == 0 )
                                 {
                                     count = 1;
                                     StringBuffer response = new StringBuffer();
@@ -295,12 +298,13 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                     // 비트맵이 누워져있어서 회전시켜야함.
                                     Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix_90, true);
 
-                                    response = EasyOCRAPI(rotatedBitmap, result.getTitle());
+                                    bmp_images.add(rotatedBitmap); // 비트맵 저장
+                                    bmp_names.add(result.getTitle()); // 비트맵 유형 저장
                                     System.out.println(count);
-                                    ExpirationDate(response); // 유통기한 말해주기
 
 
-                                } else */if(result.getTitle().contains("ExpirationDate") && count == 0)
+
+                                } else if(result.getTitle().contains("ExpirationDate") && count == 0)
                                 {
                                     count = 1;
                                     StringBuffer response = new StringBuffer();
@@ -316,6 +320,15 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
                                 }
                             }
                         }
+
+                        StringBuffer response = new StringBuffer();
+                        try {
+                            response = EasyOCRAPI(bmp_images, bmp_names);
+                            ExpirationDate(response); // 유통기한 말해주기
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
 
                         tracker.trackResults(mappedRecognitions, currTimestamp);
                         trackingOverlay.postInvalidate();
@@ -460,10 +473,10 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
 
 
     // Todo : EasyOCR call
-    public synchronized StringBuffer EasyOCRAPI(Bitmap bitmap, String result_title) throws JSONException {
+    public synchronized StringBuffer EasyOCRAPI(ArrayList<Bitmap> bitmaps, ArrayList<String> result_titles) throws JSONException {
         StringBuffer response = new StringBuffer();
 
-        String strUrl = "127.0.0.1/:80";
+        String strUrl = "127.0.0.1/:8080";
         String jsonMessage;
 
         /*
@@ -490,17 +503,20 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         Resources res= getResources();
 
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
-        byte[] image2 = outStream.toByteArray();
-        String profileImageBase64 = Base64.encodeToString(image2, 0);
-        // 전환 끝
+        // 모든 비트맵 전송
+        for (int i = 0; i < bitmaps.size(); i++) {
 
-        image.put("format", "jpg");
-        image.put("data", profileImageBase64); // buffer
+            bitmaps.get(i).compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+            byte[] image2 = outStream.toByteArray();
+            String profileImageBase64 = Base64.encodeToString(image2, 0);
+            // 전환 끝
 
-        String name = result_title+"_"+Long.toString(timestamp);
-        image.put("name",name);
+            image.put("format", "jpg");
+            image.put("data", profileImageBase64); // buffer
 
+            String name = result_titles.get(i) + "_" + Long.toString(timestamp);
+            image.put("name", name);
+        }
         jsonMessage = json.toString();
 
         response = post(strUrl, jsonMessage);
@@ -511,7 +527,6 @@ public class DetectorActivity extends CameraActivity implements OnImageAvailable
         * 3. time : 회신 시각
         * 4. img_name : 이미지 명
         * */
-
 
         return response;
     }
